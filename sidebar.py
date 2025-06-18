@@ -8,8 +8,6 @@ ROLE_COLORS = {
     "Innocent":    "#a1c9f4",
 }
 
-
-
 def render_sidebar():
     st.sidebar.header("Settings")
 
@@ -43,6 +41,6 @@ def render_sidebar():
     labels = []
     if isinstance(article_name, str):
         article = load_article(f'{folder_path}/{article_name}')
-        labels = load_labels('split_data' if use_example else 'user_articles', article_name)
+        labels = load_labels('split_data' if use_example else 'user_articles', article_name, threshold)
 
     return article, labels, use_example, threshold, role_filter

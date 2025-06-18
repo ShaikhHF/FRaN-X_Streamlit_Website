@@ -14,7 +14,6 @@ ROLE_COLORS = {
 }
 
 
-
 # Predict entity framing with span info
 def predict_entity_framing(text, labels, threshold:float = 0.0):
     records = []
