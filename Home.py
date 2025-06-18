@@ -6,10 +6,6 @@ from bs4 import BeautifulSoup
 import re
 from load_annotations import load_article, load_labels, load_file_names
 
-TXT_FILE = 'chunk_data/EN_CC_100013.txt'
-CSV_FILES = ['split_data/entry_0.csv', 'split_data/entry_1.csv']
-
-
 ROLE_COLORS = {
     "Protagonist": "#a1f4a1",
     "Antagonist":  "#f4a1a1",
@@ -135,10 +131,11 @@ st.title("FRaN-X: Entity Framing & Narrative Analysis")
 
 # Article input
 st.header("1. Article Input")
-use_example = st.checkbox("Use example article for illustration")
+
 
 # Sidebar controls
 st.sidebar.header("Settings")
+use_example = st.sidebar.checkbox("Use example article for illustration")
 if use_example:
     folder_path = 'chunk_data'
     file_names = load_file_names(folder_path)
@@ -159,8 +156,7 @@ else:
 
 threshold    = st.sidebar.slider("Narrative confidence threshold", 0.0, 1.0, 0.5, 0.01)
 role_filter  = st.sidebar.multiselect("Filter roles", list(ROLE_COLORS.keys()), default=list(ROLE_COLORS.keys()))
-show_tl      = st.sidebar.checkbox("Show transition timeline", True)
-show_annot   = st.sidebar.checkbox("Show annotated article view", True)
+
 
 
 
@@ -179,13 +175,22 @@ else:
             article = '\n'.join(p.get_text() for p in soup.find_all('p'))
 
 if article:
-    # 2. Entity framing & timeline
+    show_annot   = st.checkbox("Show annotated article view", True)
     df_f = predict_entity_framing(article, labels, threshold)
+
+    # 3. Annotated article view
+    if show_annot:
+        st.header("2. Framing-Annotated Article View")
+        html = annotate_article_html(article, df_f)
+        components.html(html, height=600)
+    
+    # 2. Entity framing & timeline
+    show_tl      = st.checkbox("Show transition timeline", True)
 
     if not df_f.empty:
         df_f = df_f[df_f['main_role'].isin(role_filter)]
 
-        st.header("2. Role Distribution & Transition Timeline")
+        st.header("3. Role Distribution & Transition Timeline")
         dist = df_f['main_role'].value_counts().reset_index()
         dist.columns = ['role','count']
         
@@ -202,11 +207,7 @@ if article:
             ).properties(height=200)
             st.altair_chart(timeline, use_container_width=True)
 
-    # 3. Annotated article view
-    if show_annot:
-        st.header("3. Framing-Annotated Article View")
-        html = annotate_article_html(article, df_f)
-        components.html(html, height=600)
+
 
     # 4. Narrative classification
     st.header("4. Narrative Classification")
