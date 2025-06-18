@@ -12,7 +12,7 @@ def load_article(filepath):
     with open(filepath, 'r', encoding='utf-8') as f:
         return f.read().strip()
 
-def load_labels(folder_name, article_file_name):
+def load_labels(folder_name, article_file_name, threshold):
     label_map = defaultdict(lambda: {
         'entity': '',
         'main_role': '',
@@ -26,19 +26,21 @@ def load_labels(folder_name, article_file_name):
         with open(csv_file, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                if article_file_name == row['article_id']:
-                    entity = row['entity_mention']
-                    role_class = capitalize(row['main_role'])
-                    fine_role = row['fine_grained_roles'][2:-2].replace("'", "")
-                    #confidence = row['confidence']
-                    confidence = round(random.uniform(0.6, 0.95), 2)
+                c = round(random.uniform(0.6, 0.95), 2)
+                if c > threshold:
+                    if article_file_name == row['article_id']:
+                        entity = row['entity_mention']
+                        role_class = capitalize(row['main_role'])
+                        fine_role = row['fine_grained_roles'][2:-2].replace("'", "")
+                        #confidence = row['confidence']
+                        confidence = c
 
-                    key = entity
-                    if label_map[key]['entity'] == '':
-                        label_map[key]['entity'] = entity
-                        label_map[key]['main_role'] = role_class
-                    label_map[key]['fine_roles'].add(fine_role)
-                    label_map[key]['confidence'] = max(label_map[key]['confidence'], confidence)
+                        key = entity
+                        if label_map[key]['entity'] == '':
+                            label_map[key]['entity'] = entity
+                            label_map[key]['main_role'] = role_class
+                        label_map[key]['fine_roles'].add(fine_role)
+                        label_map[key]['confidence'] = max(label_map[key]['confidence'], confidence)
 
     # Convert sets to sorted lists
     for label in label_map.values():
