@@ -1,7 +1,9 @@
 import csv
 from collections import defaultdict
 import os
+import random #remove later once the confidence column is added
 from pathlib import Path
+
 
 def capitalize(s):
     return s.capitalize() if s else s
@@ -28,7 +30,8 @@ def load_labels(folder_name, article_file_name):
                     entity = row['entity_mention']
                     role_class = capitalize(row['main_role'])
                     fine_role = row['fine_grained_roles'][2:-2].replace("'", "")
-                    confidence = 0.7
+                    #confidence = row['confidence']
+                    confidence = round(random.uniform(0.6, 0.95), 2)
 
                     key = entity
                     if label_map[key]['entity'] == '':
