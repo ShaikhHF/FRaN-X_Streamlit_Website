@@ -5,12 +5,15 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from load_annotations import load_article, load_labels, load_file_names
+from annotated_text import annotated_text
 
 ROLE_COLORS = {
-    "Protagonist": "#a1f4a1",
-    "Antagonist":  "#f4a1a1",
-    "Innocent":    "#a1c9f4",
+   "Protagonist": "#a1f4a1",
+   "Antagonist":  "#f4a1a1",
+   "Innocent":    "#a1c9f4",
 }
+
+
 
 # Predict entity framing with span info
 def predict_entity_framing(text, labels, threshold:float = 0.0):
@@ -51,55 +54,64 @@ def identify_bias_and_rewrite(text, mode="conservative"):
         {"span": "wage \u201cto the last Ukrainian\u201d", "suggestion": "intensify conflict"},
     ]
 
-def annotate_article_html(text, df):
+def escape_entity(entity):
+    return re.sub(r'([.^$*+?{}\[\]\\|()])', r'\\\1', entity)
+
+def reformat_text_html_with_tooltips(text, labels):
     annotated = text
 
-    if not df.empty and 'entity' in df.columns:
-        entities = df[df['entity'].apply(lambda x: isinstance(x, str) and x.strip() != "")]
-        
-        if not entities.empty:
-            entities = entities.sort_values('entity', key=lambda s: s.str.len(), ascending=False)
+    if labels:
+        labels_sorted = sorted(labels, key=lambda d: len(d['entity']), reverse=True)
 
-            def escape_entity(entity):
-                return re.sub(r'([.^$*+?{}\[\]\\|()])', r'\\\1', entity)
+        entity_patterns = [
+            rf'(?<!\w){escape_entity(lbl["entity"])}(?!\w)'
+            for lbl in labels_sorted
+            if isinstance(lbl.get("entity"), str) and lbl["entity"].strip()
+        ]
 
-            entity_patterns = [
-                rf'(?<!\w){escape_entity(ent)}(?!\w)'
-                for ent in entities['entity']
-            ]
+        if entity_patterns:
+            pattern = r'(' + '|'.join(entity_patterns) + r')'
 
-            if entity_patterns:
-                pattern = r'(' + '|'.join(entity_patterns) + r')'
+            def replacer(m):
+                entity = m.group(0)
+                match = next((lbl for lbl in labels_sorted if lbl["entity"] == entity), None)
+                if not match:
+                    return entity
 
-                def replacer(m):
-                    entity = m.group(0)
-                    matches = entities[entities['entity'] == entity]
-                    if matches.empty:
-                        return entity  # fallback
+                color = ROLE_COLORS.get(match.get("main_role", ""), "#000000")
 
-                    row = matches.iloc[0]
-                    color = ROLE_COLORS.get(row.get('main_role', ''), '#ffffb3')
-                    fine_roles = row.get('fine_roles', [])
-                    if isinstance(fine_roles, str):
-                        try:
-                            fine_roles = eval(fine_roles)
-                        except:
-                            fine_roles = [fine_roles]
+                # Clean fine_roles
+                fine_roles_raw = match.get("fine_roles", [])
+                if isinstance(fine_roles_raw, str):
+                    try:
+                        fine_roles_raw = eval(fine_roles_raw)
+                    except:
+                        fine_roles_raw = [fine_roles_raw]
 
-                    tooltip = (
-                        f"Role: {row.get('main_role', 'Unknown')}<br>"
-                        f"Confidence: {row.get('confidence', 'N/A')}<br>"
-                        f"Fine roles: {', '.join(fine_roles)}"
-                    )
-                    return (
-                        f'<span class="entity" '
-                        f'style="background-color:{color}; padding:3px 4px; border-radius:3px;" '
-                        f'data-tooltip="{tooltip}">{entity}</span>'
-                    )
+                cleaned_roles = [
+                    r.strip(' "\'').title()
+                    for r in fine_roles_raw
+                    if isinstance(r, str)
+                ]
+                fine_roles = ", ".join(cleaned_roles)
 
-                annotated = re.sub(pattern, replacer, annotated)
+                tooltip = (
+                    f"Role: {match.get('main_role', 'Unknown')}<br>"
+                    f"Confidence: {match.get('confidence', 'N/A')}<br>"
+                    f"Fine roles: {fine_roles}"
+                )
 
-    # Always return full HTML structure even if there are no entities
+                return (
+                    f'<span class="entity" '
+                    f'style="background-color:{color}; padding:3px 6px; border-radius:4px;" '
+                    f'data-tooltip="{tooltip}">'
+                    f'{entity} | <span style="font-size: smaller;">{fine_roles}</span></span>'
+                )
+
+
+            annotated = re.sub(pattern, replacer, annotated)
+
+    # Wrap in full HTML document with Tippy support
     html = (
         '<html><head>'
         '<script src="https://unpkg.com/@popperjs/core@2"></script>'
@@ -110,7 +122,7 @@ def annotate_article_html(text, df):
         + annotated.replace("\n", "<br>") +
         '<script>'
         'tippy(".entity", {'
-        ' content: reference => reference.getAttribute("data-tooltip"),'  
+        ' content: reference => reference.getAttribute("data-tooltip"),'
         ' allowHTML: true,'
         ' trigger: "mouseenter click",'
         ' interactive: true,'
@@ -119,7 +131,9 @@ def annotate_article_html(text, df):
         '</script>'
         '</body></html>'
     )
+
     return html
+
 
 
 # --- Streamlit App ---
@@ -180,10 +194,9 @@ if article:
 
     # 3. Annotated article view
     if show_annot:
-        st.header("2. Framing-Annotated Article View")
-        html = annotate_article_html(article, df_f)
-        components.html(html, height=600)
-    
+        html = reformat_text_html_with_tooltips(article, labels)
+        st.components.v1.html(html, height=600)     
+
     # 2. Entity framing & timeline
     show_tl      = st.checkbox("Show transition timeline", True)
 
