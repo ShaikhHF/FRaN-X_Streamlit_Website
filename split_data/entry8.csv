@@ -1,0 +1,2 @@
+article_id,text,entity_mention,start_offset,end_offset,main_role,fine_grained_roles,context_sentence
+EN_UA_016012.txt,"",Vasyl Lomachenko,1860,1862,Protagonist,['Martyr']," ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine."
