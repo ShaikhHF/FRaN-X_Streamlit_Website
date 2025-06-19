@@ -57,7 +57,7 @@ for i, col in enumerate(columns):
 
             html = reformat_text_html_with_tooltips(article_text, labels)
             line_count = article_text.count("\n") + 1
-            estimated_height = min(900, line_count * 50)
+            estimated_height = min(1500, line_count * 100)
             st.components.v1.html(html, height=estimated_height)
 
             # Role distribution collection
