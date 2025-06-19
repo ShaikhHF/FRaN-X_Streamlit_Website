@@ -151,7 +151,6 @@ article, labels, use_example, threshold, role_filter = render_sidebar()
 
 
 
-
 if use_example:
     st.text_area("Example Article", article, height=300)
 else:
@@ -176,7 +175,6 @@ if article:
         st.components.v1.html(html, height=600)     
 
     # 2. Entity framing & timeline
-    show_tl = st.checkbox("Show transition timeline", True)
 
     if not df_f.empty:
         df_f = df_f[df_f['main_role'].isin(role_filter)]
@@ -188,9 +186,7 @@ if article:
         color_list = [ROLE_COLORS.get(role, "#cccccc") for role in dist['role']]
         domain_list = dist['role'].tolist()
 
-        #chart
-        #st.altair_chart(alt.Chart(dist).mark_bar().encode(x='role',y='count',color=alt.Color('role',scale=alt.Scale(domain=domain_list, range=color_list))), use_container_width=True)
-        
+        #chart        
         exploded = df_f.explode('fine_roles')
         grouped = exploded.groupby(['main_role', 'fine_roles']).size().reset_index(name='count')
         grouped = grouped.sort_values(by=['main_role', 'fine_roles'])
@@ -198,11 +194,7 @@ if article:
         # Compute the cumulative sum within each main_role
         grouped['cumsum'] = grouped.groupby('main_role')['count'].cumsum()
         grouped['prevsum'] = grouped['cumsum'] - grouped['count']
-        grouped['midpoint'] = grouped['prevsum'] + grouped['count'] / 2
-
-        # Color mapping
-        domain_list = list(ROLE_COLORS.keys())
-        color_list = [ROLE_COLORS.get(role, "#cccccc") for role in domain_list]
+        grouped['entities'] = grouped['prevsum'] + grouped['count'] / 2
 
         # Bar chart
         bars = alt.Chart(grouped).mark_bar(stroke='black', strokeWidth=0.5).encode(
@@ -212,13 +204,12 @@ if article:
             tooltip=['main_role', 'fine_roles', 'count']
         )
 
-        # Label chart — use precomputed 'midpoint' for y positioning
         labels = alt.Chart(grouped).mark_text(
             color='black',
             fontSize=11
         ).encode(
             x='main_role:N',
-            y=alt.Y('midpoint:Q'),  # <- exact center of the segment
+            y=alt.Y('entities:Q'),  # <- exact center of the segment
             text='fine_roles:N'
         )
 
@@ -231,14 +222,13 @@ if article:
         st.altair_chart(chart, use_container_width=True)
 
         #timeline
-        if show_tl:
-            timeline = alt.Chart(df_f).mark_bar().encode(
-                x=alt.X('start:Q', title='Position'), x2='end:Q',
-                y=alt.Y('entity:N', title='Entity'),
-                color=alt.Color('main_role:N', scale=alt.Scale(domain=list(ROLE_COLORS.keys()), range=list(ROLE_COLORS.values()))),
-                tooltip=['entity','main_role','confidence']
-            ).properties(height=200)
-            st.altair_chart(timeline, use_container_width=True)
+        timeline = alt.Chart(df_f).mark_bar().encode(
+            x=alt.X('start:Q', title='Position'), x2='end:Q',
+            y=alt.Y('entity:N', title='Entity'),
+            color=alt.Color('main_role:N', scale=alt.Scale(domain=list(ROLE_COLORS.keys()), range=list(ROLE_COLORS.values()))),
+            tooltip=['entity','main_role','confidence']
+        ).properties(height=200)
+        st.altair_chart(timeline, use_container_width=True)
 
         role_counts = df_f['main_role'].value_counts().reset_index()
         role_counts.columns = ['main_role', 'count']
