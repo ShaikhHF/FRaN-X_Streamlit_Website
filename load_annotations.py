@@ -9,8 +9,11 @@ def capitalize(s):
     return s.capitalize() if s else s
 
 def load_article(filepath):
+    if filepath.endswith("Select a file"):
+        return ""
     with open(filepath, 'r', encoding='utf-8') as f:
         return f.read().strip()
+
 
 def load_labels(folder_name, article_file_name, threshold):
     label_map = defaultdict(lambda: {
