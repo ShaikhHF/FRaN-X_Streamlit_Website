@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 
 ROLE_COLORS = {
    "Protagonist": "#a1f4a1",
@@ -89,3 +90,31 @@ def reformat_text_html_with_tooltips(text, labels_dict):
     )
 
     return html
+
+def predict_entity_framing(text, labels, threshold: float = 0.0):
+    records = []
+
+    for entity, mentions in labels.items():
+        for mention in mentions:
+            if mention['confidence'] >= threshold:
+                records.append({
+                    'entity': entity,
+                    'main_role': mention['main_role'],
+                    'fine_roles': mention['fine_roles'],
+                    'confidence': mention['confidence'],
+                    'start': mention['start_offset'],
+                    'end': mention['end_offset']
+                })
+
+    # Ensure there is at least one record to avoid breaking downstream code
+    if not records:
+        records.append({
+            'entity': 'abcdef',
+            'main_role': 'innocent',
+            'fine_roles': ['forgotten'],
+            'confidence': 0.0,
+            'start': 0,
+            'end': 0
+        })
+
+    return pd.DataFrame(records)
