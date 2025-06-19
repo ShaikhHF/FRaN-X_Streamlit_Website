@@ -1,7 +1,7 @@
 import streamlit as st
 from sidebar import render_sidebar
 from load_annotations import load_article, load_labels, load_file_names
-from Home import reformat_text_html_with_tooltips
+from render_text import reformat_text_html_with_tooltips
 
 ROLE_COLORS = {
     "Protagonist": "#a1f4a1",
@@ -9,10 +9,12 @@ ROLE_COLORS = {
     "Innocent": "#a1c9f4",
 }
 
+
 st.set_page_config(page_title="Compare", page_icon="📈", layout="wide")
 
 # Sidebar
 article, labels, use_example, threshold, role_filter = render_sidebar(False)
+
 
 # Title Row with Dynamic Column Buttons
 title_col, spacer, add_col, remove_col = st.columns([3, 5, 1, 1])
@@ -48,8 +50,15 @@ for i, col in enumerate(columns):
         
         if selected_file != "Select a file":
             article_text = load_article(f"{article_folder}/{selected_file}")
-            st.text_area("Content", article_text, height=300, key=f"text_area_{i}")
-            
-            labels = load_labels(label_folder, selected_file, threshold)
+            #st.text_area("Content", article_text, height=300, key=f"text_area_{i}")
+
+            labels = load_labels(
+                    'split_data' if use_example else 'user_articles',
+                    selected_file, 
+                    threshold
+                    )
+
             html = reformat_text_html_with_tooltips(article_text, labels)
-            st.components.v1.html(html, height=600)
+            line_count = article_text.count("\n") + 1
+            estimated_height = min(900, line_count * 50) #if articles are getting cut off then increase height variable
+            st.components.v1.html(html, height=estimated_height) 
