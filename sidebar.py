@@ -52,17 +52,22 @@ def render_sidebar():
     labels = []
     file_list = list(file_names)
 
-    # Add a friendly prompt at the top
     file_options = ["Select a file"] + file_list
 
     if file_names:
         selected_index = file_options.index(st.session_state.article_name) if st.session_state.article_name in file_options else 0
 
-        st.session_state.article_name = st.sidebar.selectbox(
+        selected_file = st.sidebar.selectbox(
             "Choose a file",
             file_options,
             index=selected_index
         )
+
+        # Only update session state and trigger rerun if selection changed
+        if selected_file != st.session_state.article_name:
+            st.session_state.article_name = selected_file
+            st.rerun()
+
 
         if st.session_state.article_name != "Select a file":
             article = load_article(f'{folder_path}/{st.session_state.article_name}')
