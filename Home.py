@@ -29,7 +29,7 @@ def predict_entity_framing(text, labels, threshold:float = 0.0):
                     'start': m.start(),
                     'end': m.end()
                 })
-        records.append({'entity': 'abcdefghijklmnopqrstuvwxyz','main_role': 'innocent','fine_roles': 'forgotten','confidence': '0.0','start': 0,'end': 0})#breaks when there is no entity
+        records.append({'entity': 'abcdef','main_role': 'innocent','fine_roles': 'forgotten','confidence': '0.0','start': 0,'end': 0})#breaks when there is no entity
     return pd.DataFrame(records)
 
 # Narrative classification
@@ -176,7 +176,7 @@ if article:
         st.components.v1.html(html, height=600)     
 
     # 2. Entity framing & timeline
-    show_tl      = st.checkbox("Show transition timeline", True)
+    show_tl = st.checkbox("Show transition timeline", True)
 
     if not df_f.empty:
         df_f = df_f[df_f['main_role'].isin(role_filter)]
@@ -188,7 +188,49 @@ if article:
         color_list = [ROLE_COLORS.get(role, "#cccccc") for role in dist['role']]
         domain_list = dist['role'].tolist()
 
-        st.altair_chart(alt.Chart(dist).mark_bar().encode(x='role',y='count',color=alt.Color('role',scale=alt.Scale(domain=domain_list, range=color_list))), use_container_width=True)
+        #chart
+        #st.altair_chart(alt.Chart(dist).mark_bar().encode(x='role',y='count',color=alt.Color('role',scale=alt.Scale(domain=domain_list, range=color_list))), use_container_width=True)
+        
+        exploded = df_f.explode('fine_roles')
+        grouped = exploded.groupby(['main_role', 'fine_roles']).size().reset_index(name='count')
+        grouped = grouped.sort_values(by=['main_role', 'fine_roles'])
+
+        # Compute the cumulative sum within each main_role
+        grouped['cumsum'] = grouped.groupby('main_role')['count'].cumsum()
+        grouped['prevsum'] = grouped['cumsum'] - grouped['count']
+        grouped['midpoint'] = grouped['prevsum'] + grouped['count'] / 2
+
+        # Color mapping
+        domain_list = list(ROLE_COLORS.keys())
+        color_list = [ROLE_COLORS.get(role, "#cccccc") for role in domain_list]
+
+        # Bar chart
+        bars = alt.Chart(grouped).mark_bar(stroke='black', strokeWidth=0.5).encode(
+            x=alt.X('main_role:N', title='Main Role'),
+            y=alt.Y('count:Q', stack='zero'),
+            color=alt.Color('main_role:N', scale=alt.Scale(domain=domain_list, range=color_list), legend=None),
+            tooltip=['main_role', 'fine_roles', 'count']
+        )
+
+        # Label chart — use precomputed 'midpoint' for y positioning
+        labels = alt.Chart(grouped).mark_text(
+            color='black',
+            fontSize=11
+        ).encode(
+            x='main_role:N',
+            y=alt.Y('midpoint:Q'),  # <- exact center of the segment
+            text='fine_roles:N'
+        )
+
+        # Combine
+        chart = (bars + labels).properties(
+            width=500,
+            title='Main Roles with Fine-Grained Role Segments'
+        )
+
+        st.altair_chart(chart, use_container_width=True)
+
+        #timeline
         if show_tl:
             timeline = alt.Chart(df_f).mark_bar().encode(
                 x=alt.X('start:Q', title='Position'), x2='end:Q',
@@ -198,7 +240,17 @@ if article:
             ).properties(height=200)
             st.altair_chart(timeline, use_container_width=True)
 
+        role_counts = df_f['main_role'].value_counts().reset_index()
+        role_counts.columns = ['main_role', 'count']
 
+        #pie chart
+        pie = alt.Chart(role_counts).mark_arc(innerRadius=50).encode(
+            theta=alt.Theta(field='count', type='quantitative'),
+            color=alt.Color(field='main_role', type='nominal', scale=alt.Scale(domain=list(ROLE_COLORS.keys()), range=list(ROLE_COLORS.values()))),
+            tooltip=['main_role', 'count']
+        ).properties(title="Main Role Distribution")
+
+        st.altair_chart(pie, use_container_width=True)
 
     # 4. Narrative classification
     st.header("4. Narrative Classification")
@@ -216,6 +268,8 @@ if article:
     for s in suggestions:
         st.write(f"**Span:** {s['span']}  \n**Suggestion:** {s['suggestion']}")
 
+
+    
 
 
 
