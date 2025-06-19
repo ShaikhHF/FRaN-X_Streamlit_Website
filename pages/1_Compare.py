@@ -1,10 +1,7 @@
 import streamlit as st
-import time
-import numpy as np
 from sidebar import render_sidebar
 from load_annotations import load_article, load_labels, load_file_names
-from Home import reformat_text_html_with_tooltips, predict_entity_framing
-import altair as alt
+from Home import reformat_text_html_with_tooltips
 
 ROLE_COLORS = {
     "Protagonist": "#a1f4a1",
@@ -54,4 +51,4 @@ with col2:
         labels2 = load_labels(label_folder_path, file2, threshold)
 
         html2 = reformat_text_html_with_tooltips(article2, labels2)
-        st.components.v1.html(html2, height=600) 
+        st.components.v1.html(html2, height=1000) 

@@ -1,0 +1,91 @@
+import streamlit as st
+
+ROLE_COLORS = {
+   "Protagonist": "#a1f4a1",
+   "Antagonist":  "#f4a1a1",
+   "Innocent":    "#a1c9f4",
+}
+
+def reformat_text_html_with_tooltips(text, labels_dict):
+    spans = []
+
+    for entity, mentions in labels_dict.items():
+        if not isinstance(mentions, list):
+            st.stop()
+            raise TypeError(f"Expected a list for entity '{entity}', but got {type(mentions)}")
+
+        for i, mention in enumerate(mentions):
+            if not isinstance(mention, dict):
+                st.stop()
+                raise TypeError(f"Malformed mention at entity '{entity}', index {i}: {mention}")
+
+            start = mention.get("start_offset", 0)
+            end = mention.get("end_offset", 0)
+
+            # Clip to valid range
+            start = max(0, min(start, len(text)))
+            end = max(start, min(end, len(text)))  # Ensure end ≥ start
+
+            color = ROLE_COLORS.get(mention.get("main_role", ""), "#000000")
+            fine_roles = ", ".join([r.strip().title() for r in mention.get("fine_roles", [])])
+            tooltip = (
+                f"Role: {mention.get('main_role', 'Unknown')}<br>"
+                f"Confidence: {mention.get('confidence', 'N/A')}<br>"
+                f"Fine roles: {fine_roles}"
+            )
+
+            entity_text = text[start:end].strip() or entity  # fallback if empty
+
+            spans.append({
+                "start": start,
+                "end": end,
+                "html": (
+                    f'<span class="entity" '
+                    f'style="background-color:{color}; padding:3px 6px; border-radius:4px;" '
+                    f'data-tooltip="{tooltip}">'
+                    f'{entity_text} | <span style="font-size: smaller;">{fine_roles}</span></span>'
+                )
+            })
+
+    # Sort spans by start index
+    spans.sort(key=lambda x: x["start"])
+
+    result = []
+    last_idx = 0
+    for span in spans:
+        start, end = span["start"], span["end"]
+        if start < last_idx:
+            # Overlap detected, log it (optional)
+            continue  # skip or resolve overlap if needed
+
+        result.append(text[last_idx:start])
+        result.append(span["html"])
+        last_idx = end
+
+    result.append(text[last_idx:])  # ALWAYS append tail
+
+    annotated = ''.join(result)
+
+    html = (
+        '<html><head>'
+        '<script src="https://unpkg.com/@popperjs/core@2"></script>'
+        '<script src="https://unpkg.com/tippy.js@6"></script>'
+        '<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/animations/scale.css"/>'
+        '<style> body { font-family: sans-serif; } </style>'
+        '</head><body>'
+        '<div style="white-space: pre-wrap;">'
+        + annotated +
+        '</div>'
+        '<script>'
+        'tippy(".entity", {'
+        ' content: reference => reference.getAttribute("data-tooltip"),'
+        ' allowHTML: true,'
+        ' trigger: "mouseenter click",'
+        ' interactive: true,'
+        ' animation: "scale"'
+        '});'
+        '</script>'
+        '</body></html>'
+    )
+
+    return html

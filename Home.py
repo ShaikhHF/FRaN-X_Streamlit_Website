@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from sidebar import render_sidebar
+from render_text import reformat_text_html_with_tooltips
 
 
 ROLE_COLORS = {
@@ -13,24 +14,34 @@ ROLE_COLORS = {
    "Innocent":    "#a1c9f4",
 }
 
-
-# Predict entity framing with span info
-def predict_entity_framing(text, labels, threshold:float = 0.0):
+def predict_entity_framing(text, labels, threshold: float = 0.0):
     records = []
-    for lbl in labels:
-        pattern = re.escape(lbl['entity'])
-        for m in re.finditer(rf"\b{pattern}\b", text):
-            if lbl['confidence'] >= threshold:
+
+    for entity, mentions in labels.items():
+        for mention in mentions:
+            if mention['confidence'] >= threshold:
                 records.append({
-                    'entity': lbl['entity'],
-                    'main_role': lbl['main_role'],
-                    'fine_roles': lbl['fine_roles'],
-                    'confidence': lbl['confidence'],
-                    'start': m.start(),
-                    'end': m.end()
+                    'entity': entity,
+                    'main_role': mention['main_role'],
+                    'fine_roles': mention['fine_roles'],
+                    'confidence': mention['confidence'],
+                    'start': mention['start_offset'],
+                    'end': mention['end_offset']
                 })
-        records.append({'entity': 'abcdef','main_role': 'innocent','fine_roles': 'forgotten','confidence': '0.0','start': 0,'end': 0})#breaks when there is no entity
+
+    # Ensure there is at least one record to avoid breaking downstream code
+    if not records:
+        records.append({
+            'entity': 'abcdef',
+            'main_role': 'innocent',
+            'fine_roles': ['forgotten'],
+            'confidence': 0.0,
+            'start': 0,
+            'end': 0
+        })
+
     return pd.DataFrame(records)
+
 
 # Narrative classification
 def predict_narrative_classification(text, threshold=0.0):
@@ -46,97 +57,15 @@ def predict_narrative_classification(text, threshold=0.0):
 def extract_narrative(text):
     return "Kremlin claims British pressure and additional Russian demands thwarted a potential Ukraine peace deal."
 
-# Identify bias & suggestions
-def identify_bias_and_rewrite(text, mode="conservative"):
-    return [
-        {"span": "British pressure",          "suggestion": "UK diplomatic influence"},
-        {"span": "wage \u201cto the last Ukrainian\u201d", "suggestion": "intensify conflict"},
-    ]
-
 def escape_entity(entity):
     return re.sub(r'([.^$*+?{}\[\]\\|()])', r'\\\1', entity)
 
-def reformat_text_html_with_tooltips(text, labels):
-    annotated = text
-
-    if labels:
-        labels_sorted = sorted(labels, key=lambda d: len(d['entity']), reverse=True)
-
-        entity_patterns = [
-            rf'(?<!\w){escape_entity(lbl["entity"])}(?!\w)'
-            for lbl in labels_sorted
-            if isinstance(lbl.get("entity"), str) and lbl["entity"].strip()
-        ]
-
-        if entity_patterns:
-            pattern = r'(' + '|'.join(entity_patterns) + r')'
-
-            def replacer(m):
-                entity = m.group(0)
-                match = next((lbl for lbl in labels_sorted if lbl["entity"] == entity), None)
-                if not match:
-                    return entity
-
-                color = ROLE_COLORS.get(match.get("main_role", ""), "#000000")
-
-                # Clean fine_roles
-                fine_roles_raw = match.get("fine_roles", [])
-                if isinstance(fine_roles_raw, str):
-                    try:
-                        fine_roles_raw = eval(fine_roles_raw)
-                    except:
-                        fine_roles_raw = [fine_roles_raw]
-
-                cleaned_roles = [
-                    r.strip(' "\'').title()
-                    for r in fine_roles_raw
-                    if isinstance(r, str)
-                ]
-                fine_roles = ", ".join(cleaned_roles)
-
-                tooltip = (
-                    f"Role: {match.get('main_role', 'Unknown')}<br>"
-                    f"Confidence: {match.get('confidence', 'N/A')}<br>"
-                    f"Fine roles: {fine_roles}"
-                )
-
-                return (
-                    f'<span class="entity" '
-                    f'style="background-color:{color}; padding:3px 6px; border-radius:4px;" '
-                    f'data-tooltip="{tooltip}">'
-                    f'{entity} | <span style="font-size: smaller;">{fine_roles}</span></span>'
-                )
 
 
-            annotated = re.sub(pattern, replacer, annotated)
-
-    # Wrap in full HTML document with Tippy support
-    html = (
-        '<html><head>'
-        '<script src="https://unpkg.com/@popperjs/core@2"></script>'
-        '<script src="https://unpkg.com/tippy.js@6"></script>'
-        '<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/animations/scale.css"/>'
-        '<style> body { font-family: sans-serif; white-space: pre-wrap; } </style>'
-        '</head><body>'
-        + annotated.replace("\n", "<br>") +
-        '<script>'
-        'tippy(".entity", {'
-        ' content: reference => reference.getAttribute("data-tooltip"),'
-        ' allowHTML: true,'
-        ' trigger: "mouseenter click",'
-        ' interactive: true,'
-        ' animation: "scale"'
-        '});'
-        '</script>'
-        '</body></html>'
-    )
-
-    return html
 
 
 
 # --- Streamlit App ---
-import streamlit.components.v1 as components
 
 st.set_page_config(page_title="FRaN-X", layout="wide")
 st.title("FRaN-X: Entity Framing & Narrative Analysis")
@@ -148,8 +77,7 @@ st.header("1. Article Input")
 
 article, labels, use_example, threshold, role_filter = render_sidebar()
 
-
-
+#st.write(article)
 
 if use_example:
     st.text_area("Example Article", article, height=300)
@@ -251,13 +179,13 @@ if article:
     st.header("5. Free-form Narrative Extraction")
     st.write(extract_narrative(article))
 
-    # 6. Bias identification & rewriting
-    st.header("6. Bias Identification & Rewriting")
-    mode_rw = st.radio("Rewrite mode", ["conservative","aggressive"])  
-    suggestions = identify_bias_and_rewrite(article, mode_rw)
-    for s in suggestions:
-        st.write(f"**Span:** {s['span']}  \n**Suggestion:** {s['suggestion']}")
 
+    # 6. Bias identification & rewriting
+    #st.header("6. Bias Identification & Rewriting")
+    #mode_rw = st.radio("Rewrite mode", ["conservative","aggressive"])  
+    #suggestions = identify_bias_and_rewrite(article, mode_rw)
+    #for s in suggestions:
+    #    st.write(f"**Span:** {s['span']}  \n**Suggestion:** {s['suggestion']}")
 
     
 
