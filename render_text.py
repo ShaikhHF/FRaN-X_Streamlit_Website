@@ -187,6 +187,10 @@ def format_sentence_with_spans(sentence_text, labels, threshold):
     body = ''.join(result)
 
     full_html = (
+        '<html><head>'
+        '<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/animations/scale.css"/>'
+        '<style> body { font-family: sans-serif; } </style>'
+        '</head><body>'
         '<div style="white-space: pre-wrap; overflow: visible; position: relative; z-index: 0;">' +
         body +
         '</div>'
