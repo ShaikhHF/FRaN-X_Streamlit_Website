@@ -11,6 +11,9 @@ ROLE_COLORS = {
     "Innocent": "#a1c9f4",
 }
 
+
+
+
 st.set_page_config(page_title="Compare", page_icon="📈", layout="wide")
 
 # Sidebar
@@ -54,6 +57,7 @@ for i, col in enumerate(columns):
         if selected_file != "Select a file":
             article_text = load_article(f"{article_folder}/{selected_file}")
             labels = load_labels(label_folder, selected_file, threshold)
+            
 
             html = reformat_text_html_with_tooltips(article_text, labels)
             line_count = article_text.count("\n") + 1
@@ -62,6 +66,7 @@ for i, col in enumerate(columns):
 
             # Role distribution collection
             df_f = predict_entity_framing(article_text, labels, threshold)
+
             df_f = df_f[df_f['main_role'].isin(role_filter)]
             if not df_f.empty:
                 counts = df_f['main_role'].value_counts().reset_index()
@@ -96,3 +101,4 @@ if distribution_data:
     )
 
     st.altair_chart(chart, use_container_width=True)
+

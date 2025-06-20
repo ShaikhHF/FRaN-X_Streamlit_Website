@@ -5,8 +5,9 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from sidebar import render_sidebar
-from render_text import reformat_text_html_with_tooltips, predict_entity_framing
-
+from render_text import reformat_text_html_with_tooltips, predict_entity_framing, format_sentence_with_spans
+import os
+from streamlit.components.v1 import html as st_html
 
 ROLE_COLORS = {
    "Protagonist": "#a1f4a1",
@@ -57,6 +58,26 @@ else:
     mode = st.radio("Input mode", ["Paste Text","URL"])
     if mode == "Paste Text":
         article = st.text_area("Article text", height=200)
+        os.makedirs("user_articles", exist_ok=True)
+        filename_input = st.text_input("Filename (without extension)")
+
+        # Save button
+        if st.button("Save Article"):
+            if article.strip() and filename_input.strip():
+                # Clean filename and enforce .txt extension
+                safe_filename = filename_input.strip().replace(" ", "_") + ".txt"
+                filepath = os.path.join('user_articles', safe_filename)
+
+                # Check for duplicate filenames
+                if os.path.exists(filepath):
+                    st.error(f"A file named '{safe_filename}' already exists. Please choose a different name.")
+                else:
+                    with open(filepath, "w", encoding="utf-8") as f:
+                        f.write(article)
+                    st.success(f"Article saved as {safe_filename}. Please wait while your entity framing is being calculated")
+            else:
+                st.warning("Both article text and filename must be provided.")
+
     else:
         url = st.text_input("Article URL")
         article = ""
@@ -65,14 +86,14 @@ else:
             soup = BeautifulSoup(resp.content, 'html.parser')
             article = '\n'.join(p.get_text() for p in soup.find_all('p'))
 
-if article:
+if article and labels:
     show_annot   = st.checkbox("Show annotated article view", True)
     df_f = predict_entity_framing(article, labels, threshold)
 
     # 3. Annotated article view
     if show_annot:
         html = reformat_text_html_with_tooltips(article, labels)
-        st.components.v1.html(html, height=600)     
+        st.components.v1.html(html, height=600, scrolling = True)     
 
     # 2. Entity framing & timeline
 
@@ -104,7 +125,7 @@ if article:
             tooltip=['main_role', 'fine_roles', 'count']
         )
 
-        labels = alt.Chart(grouped).mark_text(
+        label_chart = alt.Chart(grouped).mark_text(
             color='black',
             fontSize=11
         ).encode(
@@ -114,7 +135,7 @@ if article:
         )
 
         # Combine
-        chart = (bars + labels).properties(
+        chart = (bars + label_chart).properties(
             width=500,
             title='Main Roles with Fine-Grained Role Segments'
         )
@@ -159,7 +180,60 @@ if article:
     #for s in suggestions:
     #    st.write(f"**Span:** {s['span']}  \n**Suggestion:** {s['suggestion']}")
 
-    
+
+    # --- Sentence Display by Role with Adaptive Layout ---
+    st.markdown("## Sentences by Role Classification")
+
+    df_f['main_role'] = df_f['main_role'].str.strip().str.title()
+    df_f['fine_roles'] = df_f['fine_roles'].apply(lambda roles: [r.strip().title() for r in roles if r.strip()])
+    df_f = df_f[df_f['main_role'].isin(ROLE_COLORS)]
+
+    main_roles = sorted(df_f['main_role'].unique())
+    multiple_roles = len(main_roles) > 1
+    cols_per_row = 2 if multiple_roles else 1
+
+    role_cols = [st.columns(cols_per_row) for _ in range((len(main_roles) + cols_per_row - 1) // cols_per_row)]
+
+    for idx, role in enumerate(main_roles):
+        col = role_cols[idx // cols_per_row][idx % cols_per_row]
+
+        with col:
+            role_df = df_f[df_f['main_role'] == role][['sentence', 'fine_roles']].copy()
+            role_df['fine_roles'] = role_df['fine_roles'].apply(tuple)
+            role_sentences = role_df.drop_duplicates()
+
+            st.markdown(
+                f"<div style='background-color:{ROLE_COLORS[role]}; "
+                f"padding: 8px; border-radius: 6px; font-weight:bold;'>"
+                f"{role} — {len(role_sentences)} labels"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+
+            for sent in role_sentences['sentence'].unique():
+                html_block = format_sentence_with_spans(sent, labels, threshold)
+                st_html(html_block, height=80, scrolling=False)
+
+            fine_df = df_f[df_f['main_role'] == role].explode('fine_roles')
+            fine_df = fine_df[fine_df['fine_roles'].notnull() & (fine_df['fine_roles'] != '')]
+            fine_roles = sorted(fine_df['fine_roles'].dropna().unique())
+
+            if fine_roles and len(fine_roles)>1:
+                selected_fine = st.selectbox(
+                    f"Filter {role} by fine-grained role:",
+                    ["Show all"] + fine_roles,
+                    key=f"fine_{role}"
+                )
+
+                if selected_fine != "Show all":
+                    fine_sents = fine_df[fine_df['fine_roles'] == selected_fine]['sentence'].drop_duplicates()
+                    st.markdown(f"**{selected_fine}** — {len(fine_sents)} sentence(s):")
+                    for s in fine_sents:
+                        html_block = format_sentence_with_spans(s, labels, threshold)
+                        st_html(html_block, height=80, scrolling=False)
+
+
+
 
 
 
