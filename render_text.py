@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+from streamlit.components.v1 import html as st_html
+import html
 
 ROLE_COLORS = {
    "Protagonist": "#a1f4a1",
@@ -103,7 +105,8 @@ def predict_entity_framing(text, labels, threshold: float = 0.0):
                     'fine_roles': mention['fine_roles'],
                     'confidence': mention['confidence'],
                     'start': mention['start_offset'],
-                    'end': mention['end_offset']
+                    'end': mention['end_offset'],
+                    'sentence':mention['sentence']
                 })
 
     # Ensure there is at least one record to avoid breaking downstream code
@@ -114,7 +117,79 @@ def predict_entity_framing(text, labels, threshold: float = 0.0):
             'fine_roles': ['forgotten'],
             'confidence': 0.0,
             'start': 0,
-            'end': 0
+            'end': 0,
+            'sentence':'abcdef'
         })
 
     return pd.DataFrame(records)
+
+
+
+import html as html_utils 
+
+def format_sentence_with_spans(sentence_text, labels, threshold):
+    spans = []
+    used_spans = []
+
+    sentence_lower = sentence_text.lower()
+
+    for entity, mentions in labels.items():
+        for mention in mentions:
+            if mention.get('confidence', 0) < threshold:
+                continue
+            if mention.get('sentence', '').strip() != sentence_text.strip():
+                continue
+
+            mention_text = entity.strip()
+            if not mention_text:
+                continue
+
+            match_start = sentence_lower.find(mention_text.lower())
+            if match_start == -1:
+                continue
+
+            match_end = match_start + len(mention_text)
+
+            if any(match_start < end and match_end > start for start, end in used_spans):
+                continue
+
+            used_spans.append((match_start, match_end))
+
+            color = ROLE_COLORS.get(mention.get('main_role', ''), "#000000")
+            fine_roles = ", ".join([r.strip().title() for r in mention.get('fine_roles', [])])
+
+            span_html = (
+                f'<span style="background-color:{color}; padding:3px 6px; border-radius:4px;">'
+                f'{html_utils.escape(sentence_text[match_start:match_end])}'
+                f'<span style="font-size:smaller; opacity:0.75;"> </span>'
+                f'</span>'
+            )
+
+            spans.append({
+                "start": match_start,
+                "end": match_end,
+                "html": span_html
+            })
+
+    spans.sort(key=lambda x: x["start"])
+    result = []
+    last_idx = 0
+    for span in spans:
+        start = span["start"]
+        end = span["end"]
+        if start < last_idx:
+            continue
+        result.append(html_utils.escape(sentence_text[last_idx:start]))
+        result.append(span["html"])
+        last_idx = end
+    result.append(html_utils.escape(sentence_text[last_idx:]))
+
+    body = ''.join(result)
+
+    full_html = (
+        '<div style="white-space: pre-wrap; overflow: visible; position: relative; z-index: 0;">' +
+        body +
+        '</div>'
+    )
+
+    return full_html
