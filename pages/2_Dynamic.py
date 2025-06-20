@@ -26,7 +26,7 @@ def generate_shades(base_hex, n):
     base_rgb = hex_to_rgb(base_hex)
     h, l, s = colorsys.rgb_to_hls(*base_rgb)
     return [
-        rgb_to_hex(colorsys.hls_to_rgb(h, max(0, min(1, l + i * 0.05)), s))
+        rgb_to_hex(colorsys.hls_to_rgb(h, max(0, min(1, l + i * 0.08)), s))
         for i in range(n)
     ]
 
@@ -193,7 +193,7 @@ if distribution_data:
         "legend": {
             "orient": "vertical",
             "left": "left",
-            "textStyle": {"color": "#333"}  # optional: adjusts legend label color
+            "textStyle": {"color": "#333"}
         },
         "series": [
             {
