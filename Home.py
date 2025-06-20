@@ -163,26 +163,8 @@ if article and labels:
 
         st.altair_chart(pie, use_container_width=True)
 
-    # 4. Narrative classification
-    st.header("4. Narrative Classification")
-    df_n = predict_narrative_classification(article, threshold)
-    st.dataframe(df_n)
-
-    # 5. Free-form narrative extraction
-    st.header("5. Free-form Narrative Extraction")
-    st.write(extract_narrative(article))
-
-
-    # 6. Bias identification & rewriting
-    #st.header("6. Bias Identification & Rewriting")
-    #mode_rw = st.radio("Rewrite mode", ["conservative","aggressive"])  
-    #suggestions = identify_bias_and_rewrite(article, mode_rw)
-    #for s in suggestions:
-    #    st.write(f"**Span:** {s['span']}  \n**Suggestion:** {s['suggestion']}")
-
-
     # --- Sentence Display by Role with Adaptive Layout ---
-    st.markdown("## Sentences by Role Classification")
+    st.markdown("## 4. Sentences by Role Classification")
 
     df_f['main_role'] = df_f['main_role'].str.strip().str.title()
     df_f['fine_roles'] = df_f['fine_roles'].apply(lambda roles: [r.strip().title() for r in roles if r.strip()])
@@ -233,6 +215,24 @@ if article and labels:
                         st_html(html_block, height=80, scrolling=False)
 
 
+
+
+    # 4. Narrative classification
+    st.header("#. Narrative Classification")
+    df_n = predict_narrative_classification(article, threshold)
+    st.dataframe(df_n)
+
+    # 5. Free-form narrative extraction
+    st.header("#. Free-form Narrative Extraction")
+    st.write(extract_narrative(article))
+
+
+    # 6. Bias identification & rewriting
+    #st.header("6. Bias Identification & Rewriting")
+    #mode_rw = st.radio("Rewrite mode", ["conservative","aggressive"])  
+    #suggestions = identify_bias_and_rewrite(article, mode_rw)
+    #for s in suggestions:
+    #    st.write(f"**Span:** {s['span']}  \n**Suggestion:** {s['suggestion']}")
 
 
 
