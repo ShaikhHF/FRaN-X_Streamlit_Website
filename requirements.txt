@@ -2,6 +2,6 @@ streamlit
 pandas
 altair
 requests
-bs4
+beautifulsoup4
 os
-streamlit.components.v
+streamlit.components.v1
