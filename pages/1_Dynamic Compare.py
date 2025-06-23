@@ -11,6 +11,7 @@ import os
 import streamlit.components.v1 as components
 from collections import Counter
 import itertools
+import matplotlib.colors as mcolors
 from sidebar import render_sidebar
 from load_annotations import load_article, load_labels, load_file_names
 from render_text import reformat_text_html_with_tooltips, predict_entity_framing
@@ -232,7 +233,7 @@ if distribution_data:
     st_echarts(options=options, height="600px")
 
     # Network Graphs
-    st.markdown("## Network Graph  ")
+    st.markdown("## Network Graph")
     st.write("Explore the relationship between entities and roles across documents to see how groups of entity+role pairs can be used to identify potential narratives.")
 
     network_rows = []
@@ -279,6 +280,17 @@ if distribution_data:
         max_weight = max(nx.get_edge_attributes(G, "weight").values(), default=1)
         edge_widths = [G[u][v]["weight"] * 2 for u, v in G.edges()]  # scale up for visibility
 
+        edge_widths = []
+        edge_colors = []
+        for u, v in G.edges():
+            weight = G[u][v]["weight"]
+            # Scale edge width non-linearly for clarity
+            edge_widths.append(0.1 + (weight**2.5))  
+            # Darker color for heavier weights using grayscale mapping
+            intensity = min(0.9, 0.3 + 0.7 * (weight / max_weight))  # 0.3 to 1.0 brightness
+            color = mcolors.to_hex((1 - intensity, 1 - intensity, 1 - intensity))  # grayscale
+            edge_colors.append(color)
+
         # Draw graph
         node_colors = [
             ROLE_COLORS.get(G.nodes[node]['role'], "#cccccc")
@@ -310,7 +322,8 @@ if distribution_data:
         plt.tight_layout()
         st.pyplot(plt.gcf())
 
-    # --- Entity → Fine Role Network Graph ---
+
+    # --- Interactive Network Graph ---
     st.markdown("## Interactive Graph ")
     st.write("Interact with the connection between the entity,role nodes present across multiple documents. The edges represent a document where the two nodes are both present. ")
 
@@ -339,7 +352,7 @@ if distribution_data:
                 for j in range(i + 1, len(entities)):
                     e1, e2 = entities[i], entities[j]
                     if G.has_edge(e1, e2):
-                        G[e1][e2]['weight'] += 1
+                        G[e1][e2]['weight'] += 3
                     else:
                         G.add_edge(e1, e2, weight=1)
 
