@@ -68,6 +68,7 @@ else:
                     with open(filepath, "w", encoding="utf-8") as f:
                         f.write(article)
                     st.success(f"Article saved as {safe_filename}. Please wait while your entity framing is being calculated")
+                    st.rerun()
             else:
                 st.warning("Both article text and filename must be provided.")
 

@@ -1,15 +1,19 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
-from sidebar import render_sidebar
-from load_annotations import load_article, load_labels, load_file_names
-from render_text import reformat_text_html_with_tooltips, predict_entity_framing
 import colorsys
 from streamlit_echarts import st_echarts
+import matplotlib.pyplot as plt
 import networkx as nx
 from pyvis.network import Network
 import tempfile
+import os
 import streamlit.components.v1 as components
+from collections import Counter
+import itertools
+from sidebar import render_sidebar
+from load_annotations import load_article, load_labels, load_file_names
+from render_text import reformat_text_html_with_tooltips, predict_entity_framing
 
 ROLE_COLORS = {
     "Protagonist": "#a1f4a1",
@@ -30,7 +34,7 @@ def generate_shades(base_hex, n):
     base_rgb = hex_to_rgb(base_hex)
     h, l, s = colorsys.rgb_to_hls(*base_rgb)
     return [
-        rgb_to_hex(colorsys.hls_to_rgb(h, max(0, min(1, l + i * 0.08)), s))
+        rgb_to_hex(colorsys.hls_to_rgb(h, max(0, min(1, l + i * 0.04)), s))
         for i in range(n)
     ]
 
@@ -227,6 +231,10 @@ if distribution_data:
 
     st_echarts(options=options, height="600px")
 
+    # Network Graphs
+    st.markdown("## Network Graph  ")
+    st.write("Explore the relationship between entities and roles across documents to see how groups of entity+role pairs can be used to identify potential narratives.")
+
     network_rows = []
     for i in range(column_count):
         selected_file = st.session_state.get(f"file_{i}")
@@ -244,9 +252,67 @@ if distribution_data:
     if network_rows:
         graph_df = pd.concat(network_rows)
 
+        # Create node labels
+        graph_df["node_label"] = graph_df["entity"] + " (" + graph_df["fine_roles"] + ")"
+
+        # Count mentions for node sizes
+        node_sizes = graph_df["node_label"].value_counts().to_dict()
+
+        # Assign colors based on main_role
+        main_roles = graph_df["main_role"].unique()
+
+        co_occurrence = Counter()
+        for _, doc_df in graph_df.groupby("article"):
+            nodes = doc_df["node_label"].unique()
+            pairs = itertools.combinations(sorted(nodes), 2)
+            co_occurrence.update(pairs)
+
+        # Create graph: nodes = entity+role, edges = co-occurrence in the same document
+        G = nx.Graph()
+        for node, row in graph_df.groupby("node_label").first().iterrows():
+            G.add_node(node, role=row["main_role"])
+
+        # Add edges with weight = co-occurrence count
+        for (node1, node2), weight in co_occurrence.items():
+            G.add_edge(node1, node2, weight=weight)
+
+        max_weight = max(nx.get_edge_attributes(G, "weight").values(), default=1)
+        edge_widths = [G[u][v]["weight"] * 2 for u, v in G.edges()]  # scale up for visibility
+
+        # Draw graph
+        node_colors = [
+            ROLE_COLORS.get(G.nodes[node]['role'], "#cccccc")
+            for node in G.nodes()
+        ]
+
+        plt.figure(figsize=(14, 14))
+        pos = nx.spring_layout(G, k=2, iterations=100, seed=42)
+
+        # Get x and y coordinates of all nodes
+        x_vals, y_vals = zip(*pos.values())
+
+        # Set axis limits with padding
+        plt.xlim(min(x_vals) - 0.3, max(x_vals) + 0.3)
+        plt.ylim(min(y_vals) - 0.3, max(y_vals) + 0.3)
+
+
+        node_sizes = [node_sizes.get(node, 1) * 900 for node in G.nodes()]
+        node_colors = [
+            ROLE_COLORS.get(G.nodes[node]['role'], "#cccccc") for node in G.nodes()
+        ]
+
+        nx.draw_networkx_edges(G, pos, alpha=0.3, width=edge_widths)
+        nx.draw_networkx_nodes(G, pos, node_size=node_sizes, node_color=node_colors, alpha=0.9)
+        nx.draw_networkx_labels(G, pos, font_size=10)
+
+        #plt.title("Entity+Role Narrative Graph with Document Co-Occurrence Weights", fontsize=16)
+        plt.axis("off")
+        plt.tight_layout()
+        st.pyplot(plt.gcf())
 
     # --- Entity → Fine Role Network Graph ---
-    st.markdown("## Entity-Fine Role Network Graph")
+    st.markdown("## Interactive Graph ")
+    st.write("Interact with the connection between the entity,role nodes present across multiple documents. The edges represent a document where the two nodes are both present. ")
 
     if not graph_df.empty:
         import networkx as nx
