@@ -86,6 +86,7 @@ if article and labels:
 
     # 2. Annotated article view
     if show_annot:
+        st.header("2. Annotated Article")
         html = reformat_text_html_with_tooltips(article, labels)
         st.components.v1.html(html, height=600, scrolling = True)     
 
@@ -207,6 +208,9 @@ if article and labels:
                     for s in fine_sents:
                         html_block = format_sentence_with_spans(s, labels, threshold)
                         st_html(html_block, height=80, scrolling=False)
+            else: 
+                for fine_role in fine_roles:
+                    st.write(f"All annotations of this main role are of type: {fine_role}")
 
 
 

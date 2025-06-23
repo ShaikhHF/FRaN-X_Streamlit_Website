@@ -22,11 +22,13 @@ def render_sidebar(choose_file = True):
     use_example = st.sidebar.checkbox("Use example article for illustration", value=st.session_state.use_example)
     if use_example != st.session_state.use_example:
         st.session_state.use_example = use_example
-        st.rerun()
+        #st.rerun()
 
 
     threshold = st.sidebar.slider("Narrative confidence threshold", 0.0, 1.0, st.session_state.threshold, 0.01)
-    st.session_state.threshold = threshold
+    if threshold != st.session_state.threshold:
+        st.session_state.threshold = threshold
+        st.rerun()
 
     role_filter = st.sidebar.multiselect(
         "Filter roles",
