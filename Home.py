@@ -34,10 +34,6 @@ def escape_entity(entity):
     return re.sub(r'([.^$*+?{}\[\]\\|()])', r'\\\1', entity)
 
 
-
-
-
-
 # --- Streamlit App ---
 
 st.set_page_config(page_title="FRaN-X", layout="wide")
@@ -47,10 +43,7 @@ st.title("FRaN-X: Entity Framing & Narrative Analysis")
 # Article input
 st.header("1. Article Input")
 
-
 article, labels, use_example, threshold, role_filter = render_sidebar()
-
-#st.write(article)
 
 if use_example:
     st.text_area("Example Article", article, height=300)
@@ -90,12 +83,12 @@ if article and labels:
     show_annot   = st.checkbox("Show annotated article view", True)
     df_f = predict_entity_framing(article, labels, threshold)
 
-    # 3. Annotated article view
+    # 2. Annotated article view
     if show_annot:
         html = reformat_text_html_with_tooltips(article, labels)
         st.components.v1.html(html, height=600, scrolling = True)     
 
-    # 2. Entity framing & timeline
+    # 3. Entity framing & timeline
 
     if not df_f.empty:
         df_f = df_f[df_f['main_role'].isin(role_filter)]

@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 from streamlit.components.v1 import html as st_html
-import html
 
 ROLE_COLORS = {
    "Protagonist": "#a1f4a1",
@@ -127,7 +126,7 @@ def predict_entity_framing(text, labels, threshold: float = 0.0):
 
 import html as html_utils 
 
-def format_sentence_with_spans(sentence_text, labels, threshold):
+def format_sentence_with_spans(sentence_text, labels, threshold, show_fine_roles=False):
     spans = []
     used_spans = []
 
@@ -158,12 +157,20 @@ def format_sentence_with_spans(sentence_text, labels, threshold):
             color = ROLE_COLORS.get(mention.get('main_role', ''), "#000000")
             fine_roles = ", ".join([r.strip().title() for r in mention.get('fine_roles', [])])
 
-            span_html = (
-                f'<span style="background-color:{color}; padding:3px 6px; border-radius:4px;">'
-                f'{html_utils.escape(sentence_text[match_start:match_end])}'
-                f'<span style="font-size:smaller; opacity:0.75;"> </span>'
-                f'</span>'
-            )
+            if not show_fine_roles:
+                span_html = (
+                    f'<span style="background-color:{color}; padding:3px 6px; border-radius:4px;">'
+                    f'{html_utils.escape(sentence_text[match_start:match_end])}'
+                    f'<span style="font-size:smaller; opacity:0.75;"> </span>'
+                    f'</span>'
+                )
+            else:
+                span_html = (
+                    f'<span style="background-color:{color}; padding:3px 6px; border-radius:4px;">'
+                    f'{html_utils.escape(sentence_text[match_start:match_end])}'
+                    f' |<span style="font-size:smaller; opacity:0.75;"> {fine_roles} </span>'
+                    f'</span>'
+                )
 
             spans.append({
                 "start": match_start,
