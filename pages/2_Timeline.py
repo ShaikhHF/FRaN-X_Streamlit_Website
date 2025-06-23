@@ -11,7 +11,7 @@ ROLE_COLORS = {
 
 st.set_page_config(page_title="FRaN-X", layout="wide")
 st.title("In-Depth Timeline")
-st.write("#### See how each entity changes its main role and fine grain role over time")
+st.write("See how each entity changes its main role and fine grain role over time")
 
 article, labels, use_example, threshold, role_filter = render_sidebar()
 
@@ -77,7 +77,7 @@ if article and labels:
             prev_fine_display = ", ".join(prev_fine) if isinstance(prev_fine, list) else prev_fine
             new_fine_display = ", ".join(fine) if isinstance(fine, list) else fine
             st.markdown(f"""
-            <div style='background-color:#f9f9f9; border-left:4px solid {ROLE_COLORS.get(main)}; padding:10px; margin:10px 0; border-radius:6px; font-size:15px;'>
+            <div style='background-color:rgba(249, 249, 249, 0.7); border-left:4px solid {ROLE_COLORS.get(main)}; padding:10px; margin:10px 0; border-radius:6px; font-size:15px;'>
             <b>↪️ Role Change {entity}</b><br>
             <b>From:</b> {prev_main} / {prev_fine_display}<br>
             <b>To:</b> {main} / {new_fine_display}

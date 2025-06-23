@@ -213,7 +213,8 @@ if distribution_data:
 
         if check_pie_main:
             st.header("Pie: Cumulative Fine Grain by Main Role Breakdown")
-            # Manually assign color shades per role
+
+            # Assign colors
             fine_role_colors = {}
             for role in role_fine_counts['main_role'].unique():
                 fine_roles = role_fine_counts[role_fine_counts['main_role'] == role]['fine_roles'].unique()
@@ -224,31 +225,44 @@ if distribution_data:
 
             color_scale = alt.Scale(domain=list(fine_role_colors.keys()), range=list(fine_role_colors.values()))
 
-            # Compute percentages for labeling
+            # Percentages
             role_fine_counts['percentage'] = (
                 role_fine_counts.groupby('main_role')['count']
                 .transform(lambda x: x / x.sum() * 100)
             )
 
-            # Base chart with shared encodings
-            base = alt.Chart(role_fine_counts).encode(
+            # Base chart with NO legend
+            base_no_legend = alt.Chart(role_fine_counts).mark_arc(innerRadius=30).encode(
                 theta=alt.Theta(field='count', type='quantitative'),
-                color=alt.Color('fine_roles:N', scale=color_scale, legend=alt.Legend(title='Fine Role')),
+                color=alt.Color('fine_roles:N', scale=color_scale, legend=None),
                 tooltip=['main_role', 'fine_roles', 'count', alt.Tooltip('percentage:Q', format=".1f")]
+            ).properties(
+                width=300,
+                height=300
             )
 
-            # Arc chart
-            arc = base.mark_arc(innerRadius=30)
-
-
-            # Combine and facet
-            pie_chart = (arc).facet(
+            # Faceted pie chart without legend
+            pie_facet = base_no_legend.facet(
                 column=alt.Column('main_role:N', title=None, header=alt.Header(labelAngle=0))
+            ).resolve_scale(
+                color='independent'
             ).properties(
+                bounds='flush',
                 title="Fine-Grained Roles per Main Role"
             )
 
-            st.altair_chart(pie_chart, use_container_width=True)
+            # Dummy chart with only the legend
+            legend_chart = alt.Chart(role_fine_counts).mark_point().encode(
+                y=alt.Y('fine_roles:N', axis=alt.Axis(title=None, labels=False, ticks=False)),
+                color=alt.Color('fine_roles:N', scale=color_scale, legend=alt.Legend(title="Fine Role"))
+            ).properties(width= 20, height=250)
+
+            # Combine: pies + legend
+            final_chart = alt.hconcat(pie_facet, legend_chart)
+
+            st.altair_chart(final_chart, use_container_width=True)
+
+
 
     if check_pie_role:
         echarts_data = [
