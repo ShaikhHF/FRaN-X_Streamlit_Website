@@ -4,3 +4,11 @@ altair
 requests
 beautifulsoup4
 streamlit-echarts
+colorsys
+matplotlib.pyplot
+networkx
+pyvis.network
+tempfile
+os
+collections
+itertools
