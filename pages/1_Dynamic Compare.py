@@ -6,6 +6,10 @@ from load_annotations import load_article, load_labels, load_file_names
 from render_text import reformat_text_html_with_tooltips, predict_entity_framing
 import colorsys
 from streamlit_echarts import st_echarts
+import networkx as nx
+from pyvis.network import Network
+import tempfile
+import streamlit.components.v1 as components
 
 ROLE_COLORS = {
     "Protagonist": "#a1f4a1",
@@ -222,3 +226,71 @@ if distribution_data:
     }
 
     st_echarts(options=options, height="600px")
+
+    network_rows = []
+    for i in range(column_count):
+        selected_file = st.session_state.get(f"file_{i}")
+        if selected_file and selected_file != "Select a file":
+            article_text = load_article(f"{article_folder}/{selected_file}")
+            labels = load_labels(label_folder, selected_file, threshold)
+            df_network = predict_entity_framing(article_text, labels, threshold)
+            df_network = df_network[df_network['main_role'].isin(role_filter)]
+            df_network = df_network.explode("fine_roles")
+            df_network['fine_roles'] = df_network['fine_roles'].str.strip().str.title()
+            df_network = df_network[df_network['fine_roles'].notnull() & (df_network['fine_roles'] != '')]
+            df_network['article'] = selected_file
+            network_rows.append(df_network)
+
+    if network_rows:
+        graph_df = pd.concat(network_rows)
+
+
+    # --- Entity → Fine Role Network Graph ---
+    st.markdown("## Entity-Fine Role Network Graph")
+
+    if not graph_df.empty:
+        import networkx as nx
+        from pyvis.network import Network
+        import streamlit.components.v1 as components
+        import tempfile
+        import os
+
+        # Build the graph
+        G = nx.Graph()
+        for _, row in graph_df.iterrows():
+            node_id = f"{row['entity']} → {row['fine_roles']}"
+            role = row['main_role']
+            color = ROLE_COLORS.get(role, "#cccccc")
+
+            if G.has_node(node_id):
+                G.nodes[node_id]['size'] += 1
+            else:
+                G.add_node(node_id, label=node_id, color=color, size=15)
+
+        for _, group in graph_df.groupby('article'):
+            entities = group.apply(lambda r: f"{r['entity']} → {r['fine_roles']}", axis=1).unique()
+            for i in range(len(entities)):
+                for j in range(i + 1, len(entities)):
+                    e1, e2 = entities[i], entities[j]
+                    if G.has_edge(e1, e2):
+                        G[e1][e2]['weight'] += 1
+                    else:
+                        G.add_edge(e1, e2, weight=1)
+
+        # Create and render the network
+        net = Network(height="600px", width="100%", bgcolor="#ffffff", font_color="black")
+        net.from_nx(G)
+        net.repulsion(node_distance=150, spring_length=200)
+        net.show_buttons(filter_=["physics"])
+
+        # Use temporary file properly
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as tmp_file:
+            net.save_graph(tmp_file.name)
+            tmp_path = tmp_file.name
+
+        with open(tmp_path, 'r', encoding='utf-8') as f:
+            html_content = f.read()
+        components.html(html_content, height=1000, scrolling=True)
+
+        # Optional cleanup
+        os.remove(tmp_path)
