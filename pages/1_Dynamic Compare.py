@@ -31,7 +31,7 @@ def generate_shades(base_hex, n):
     ]
 
 
-st.set_page_config(page_title="Compare", page_icon="📈", layout="wide")
+st.set_page_config(page_title="FRaN-X", layout="wide")
 
 # Sidebar
 article, labels, use_example, threshold, role_filter = render_sidebar(False)
