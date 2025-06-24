@@ -96,3 +96,5 @@ if article and labels:
         color = ROLE_COLORS.get(prev_main, "#ccc")
         render_block(block, prev_main, prev_fine, count, color)
 
+st.markdown("---")
+st.markdown("*UGRIP 2025 FRaN-X Team* ")

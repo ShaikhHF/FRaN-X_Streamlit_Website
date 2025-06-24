@@ -36,7 +36,7 @@ def escape_entity(entity):
 
 # --- Streamlit App ---
 
-st.set_page_config(page_title="FRaN-X", layout="wide")
+st.set_page_config(page_title="FRaN-X", initial_sidebar_state='expanded', layout="wide")
 st.title("FRaN-X: Entity Framing & Narrative Analysis")
 
 
@@ -212,8 +212,20 @@ if article and labels:
                 for fine_role in fine_roles:
                     st.write(f"All annotations of this main role are of type: {fine_role}")
 
+    # Confidence Distribution
+    #tweak details once confidence column uses real data
+    st.subheader("Histogram of Confidence Levels")
 
+    chart = alt.Chart(df_f).mark_bar().encode(
+        alt.X("confidence:Q", bin=alt.Bin(maxbins=20), title="Confidence"),
+        alt.Y("count()", title="Frequency"),
+        tooltip=['count()']
+    ).properties(
+        width=50,
+        height=400
+    ).interactive()
 
+    st.altair_chart(chart, use_container_width=True)
 
     # 4. Narrative classification
     st.header("#. Narrative Classification")
