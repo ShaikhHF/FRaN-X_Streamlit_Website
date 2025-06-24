@@ -15,7 +15,7 @@ st.set_page_config(page_title="FRaN-X", initial_sidebar_state='expanded', layout
 st.title("Upload Articles")
 st.write("Choose a User Folder in the Sidebar to continue")
 
-article, labels, user_folder, threshold, role_filter = render_sidebar(True, False, True)
+article, labels, user_folder, threshold, role_filter = render_sidebar(True, False, True, True)
 
 mode = st.radio("Input mode", ["Paste Text","URL"])
 if mode == "Paste Text":
