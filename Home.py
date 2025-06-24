@@ -1,12 +1,9 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
-import requests
-from bs4 import BeautifulSoup
 import re
 from sidebar import render_sidebar
 from render_text import reformat_text_html_with_tooltips, predict_entity_framing, format_sentence_with_spans
-import os
 from streamlit.components.v1 import html as st_html
 
 ROLE_COLORS = {
@@ -43,42 +40,10 @@ st.title("FRaN-X: Entity Framing & Narrative Analysis")
 # Article input
 st.header("1. Article Input")
 
-article, labels, use_example, threshold, role_filter = render_sidebar()
+article, labels, user_folder, threshold, role_filter = render_sidebar()
 
-if use_example:
-    st.text_area("Example Article", article, height=300)
-else:
-    mode = st.radio("Input mode", ["Paste Text","URL"])
-    if mode == "Paste Text":
-        article = st.text_area("Article text", height=200)
-        os.makedirs("user_articles", exist_ok=True)
-        filename_input = st.text_input("Filename (without extension)")
 
-        # Save button
-        if st.button("Save Article"):
-            if article.strip() and filename_input.strip():
-                # Clean filename and enforce .txt extension
-                safe_filename = filename_input.strip().replace(" ", "_") + ".txt"
-                filepath = os.path.join('user_articles', safe_filename)
-
-                # Check for duplicate filenames
-                if os.path.exists(filepath):
-                    st.error(f"A file named '{safe_filename}' already exists. Please choose a different name.")
-                else:
-                    with open(filepath, "w", encoding="utf-8") as f:
-                        f.write(article)
-                    st.success(f"Article saved as {safe_filename}. Please wait while your entity framing is being calculated")
-                    st.rerun()
-            else:
-                st.warning("Both article text and filename must be provided.")
-
-    else:
-        url = st.text_input("Article URL")
-        article = ""
-        if url:
-            resp = requests.get(url)
-            soup = BeautifulSoup(resp.content, 'html.parser')
-            article = '\n'.join(p.get_text() for p in soup.find_all('p'))
+st.text_area("Article", article, height=300)
 
 if article and labels:
     show_annot   = st.checkbox("Show annotated article view", True)
