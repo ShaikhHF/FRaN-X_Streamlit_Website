@@ -33,7 +33,6 @@ for f in files:
         st.write(f"#### {f} \n", height=100, scrolling=True)
 
         with st.expander("Article", expanded=False):
-            #st.write(article)
             html = reformat_text_html_with_tooltips(article, labels, word)
             st.components.v1.html(html, height=600, scrolling = True)     
 
