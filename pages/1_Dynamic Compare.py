@@ -442,3 +442,6 @@ if distribution_data:
 
         # Optional cleanup
         os.remove(tmp_path)
+
+st.markdown("---")
+st.markdown("*UGRIP 2025 FRaN-X Team* ")

@@ -1,11 +1,16 @@
 import streamlit as st
-from load_annotations import load_article, load_labels, load_file_names
+import os
+from load_annotations import load_article, load_labels
 
 ROLE_COLORS = {
     "Protagonist": "#a1f4a1",
     "Antagonist":  "#f4a1a1",
     "Innocent":    "#a1c9f4",
 }
+
+def load_file_names(folder_path):
+    files = os.listdir(folder_path)
+    return tuple(files)
 
 def render_sidebar(choose_file = True):
     st.sidebar.header("Settings")
@@ -53,8 +58,6 @@ def render_sidebar(choose_file = True):
         ):
             st.session_state.article_name = "Select a file"
 
-
-        
         file_list = list(file_names)
 
         file_options = ["Select a file"] + file_list

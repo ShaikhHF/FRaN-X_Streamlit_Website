@@ -60,8 +60,3 @@ def load_labels(folder_name, article_file_name, threshold):
         mentions.sort(key=lambda x: x['start_offset'])
 
     return dict(role_timeline)
-
-
-def load_file_names(folder_path):
-    files = os.listdir(folder_path)
-    return tuple(files)
