@@ -95,7 +95,7 @@ def reformat_text_html_with_tooltips(text, labels_dict, highlight_word=None):
         # Escape for safety in regex
         pattern = re.escape(highlight_word)
         html = re.sub(
-            f"(?<!data-tooltip=\")({pattern})",
+            f"(?<![\\w>])({pattern})(?![\\w<])",
             r'<span style="border: 2px solid black; background-color:yellow; padding:1px 5px; margin: 0 1px; border-radius: 4px;">\1</span>',
             html,
             flags=re.IGNORECASE
