@@ -30,7 +30,7 @@ for f in files:
             threshold
         )
 
-        st.write(f"#### {f} \n", height=100, scrolling=True)
+        st.write(f"#### {f} \n")
 
         with st.expander("Article", expanded=False):
             html = reformat_text_html_with_tooltips(article, labels, word)
