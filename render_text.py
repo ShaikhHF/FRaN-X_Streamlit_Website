@@ -3,6 +3,8 @@ import pandas as pd
 import re
 from collections import defaultdict
 import html as html_utils 
+from collections import defaultdict
+import html as html_utils
 
 ROLE_COLORS = {
    "Protagonist": "#a1f4a1",
@@ -138,7 +140,7 @@ def reformat_text_html_with_tooltips(text, labels_dict, hide_repeat=False, highl
 
 
 
-def predict_entity_framing(text, labels, threshold: float = 0.0):
+def predict_entity_framing(labels, threshold: float = 0.0):
     records = []
 
     for entity, mentions in labels.items():
@@ -169,15 +171,16 @@ def predict_entity_framing(text, labels, threshold: float = 0.0):
     return pd.DataFrame(records)
 
 
+def format_sentence_with_spans(sentence_text, labels, threshold, hide_repeat=True, show_fine_roles=False, seen_fine_roles=None):
+    if seen_fine_roles is None:
+        seen_fine_roles = defaultdict(set)
 
-def format_sentence_with_spans(sentence_text, labels, threshold, hide_repeat=True, show_fine_roles=False):
     spans = []
-    used_spans = []
     sentence_lower = sentence_text.lower()
 
-    seen_fine_roles = defaultdict(set)  # Tracks seen fine roles for each entity
-
     for entity, mentions in labels.items():
+        entity_key = entity.strip().lower()
+
         for mention in mentions:
             if mention.get('confidence', 0) < threshold:
                 continue
@@ -191,46 +194,37 @@ def format_sentence_with_spans(sentence_text, labels, threshold, hide_repeat=Tru
             match_start = sentence_lower.find(mention_text.lower())
             if match_start == -1:
                 continue
-
             match_end = match_start + len(mention_text)
 
-            if any(match_start < end and match_end > start for start, end in used_spans):
-                continue
-
-            used_spans.append((match_start, match_end))
-
             main_role = mention.get('main_role', '')
-            color = ROLE_COLORS.get(main_role, "#000000")
-            fine_roles_set = frozenset(r.strip().title() for r in mention.get('fine_roles', []))
-            fine_roles = ", ".join(fine_roles_set)
+            base_color = ROLE_COLORS.get(main_role, "#000000")
 
-            # Adjust color if repeated fine roles
-            is_repeated = fine_roles_set in seen_fine_roles[entity]
-            if hide_repeat and is_repeated and color.startswith("#") and len(color) == 7:
-                r = int(color[1:3], 16)
-                g = int(color[3:5], 16)
-                b = int(color[5:7], 16)
-                color = f"rgba({r}, {g}, {b}, 0.3)"
+            fine_roles_raw = mention.get('fine_roles', [])
+            fine_roles_set = frozenset(r.strip().title() for r in fine_roles_raw)
+            fine_roles_str = ", ".join(fine_roles_set)
+
+            is_repeated = fine_roles_set in seen_fine_roles[entity_key]
+            seen_fine_roles[entity_key].add(fine_roles_set)
+
+            if hide_repeat and is_repeated and base_color.startswith("#") and len(base_color) == 7:
+                r = int(base_color[1:3], 16)
+                g = int(base_color[3:5], 16)
+                b = int(base_color[5:7], 16)
+                background_color = f"rgba({r}, {g}, {b}, 0.3)"
             else:
-                seen_fine_roles[entity].add(fine_roles_set)
+                background_color = base_color
 
             mention_display = html_utils.escape(sentence_text[match_start:match_end])
 
-            if not show_fine_roles:
-                span_html = (
-                    f'<span style="background-color:{color}; padding:3px 6px; border-radius:4px;">'
-                    f'{mention_display}'
-                    f'<span style="font-size:smaller; opacity:0.75;"> </span>'
-                    f'</span>'
-                )
+            if show_fine_roles:
+                fine_roles_html = f' | <span style="font-size:smaller; opacity:0.75;">{fine_roles_str}</span>'
             else:
-                span_html = (
-                    f'<span style="background-color:{color}; padding:3px 6px; border-radius:4px;">'
-                    f'{html_utils.escape(sentence_text[match_start:match_end])}'
-                    f' |<span style="font-size:smaller; opacity:0.75;"> {fine_roles} </span>'
-                    f'</span>'
-                )
+                fine_roles_html = ""
 
+            span_html = (
+                f'<span style="background-color:{background_color}; padding:3px 6px; border-radius:4px;">'
+                f'{mention_display}{fine_roles_html}</span>'
+            )
 
             spans.append({
                 "start": match_start,
@@ -238,6 +232,7 @@ def format_sentence_with_spans(sentence_text, labels, threshold, hide_repeat=Tru
                 "html": span_html
             })
 
+    # Merge spans
     spans.sort(key=lambda x: x["start"])
     result = []
     last_idx = 0
@@ -255,12 +250,10 @@ def format_sentence_with_spans(sentence_text, labels, threshold, hide_repeat=Tru
 
     full_html = (
         '<html><head>'
-        '<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/animations/scale.css"/>'
         '<style> body { font-family: sans-serif; } </style>'
         '</head><body>'
-        '<div style="white-space: pre-wrap; overflow: visible; position: relative; z-index: 0;">' +
-        body +
-        '</div>'
+        '<div style="white-space: pre-wrap;">' + body + '</br> </div>'
+        '</body></html>'
     )
 
-    return full_html
+    return full_html, seen_fine_roles
