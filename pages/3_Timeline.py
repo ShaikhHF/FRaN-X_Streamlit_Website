@@ -43,7 +43,7 @@ def render_block(block, role_main, role_fine, count, color):
 
 
 if article and labels:
-   df_f = predict_entity_framing(article, labels, threshold)
+   df_f = predict_entity_framing(labels, threshold)
    df_f = df_f[df_f['main_role'].isin(role_filter)]
 
    df_f.sort_values(by=["entity", "start"], inplace=True)
@@ -52,6 +52,7 @@ if article and labels:
    for entity in entity_order:
     group = df_f[df_f["entity"] == entity]
     total_annotations = len(group)
+    st.divider()
     st.markdown(f"#### {entity} (total: {total_annotations})")
 
     block = []

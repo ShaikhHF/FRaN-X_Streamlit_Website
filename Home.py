@@ -23,6 +23,16 @@ def extract_narrative(text):
 def escape_entity(entity):
     return re.sub(r'([.^$*+?{}\[\]\\|()])', r'\\\1', entity)
 
+def filter_labels_by_role(labels, role_filter):
+    filtered = {}
+    for entity, mentions in labels.items():
+        filtered_mentions = [
+            m for m in mentions if m.get("main_role") in role_filter
+        ]
+        if filtered_mentions:
+            filtered[entity] = filtered_mentions
+    return filtered
+
 
 # --- Streamlit App ---
 
@@ -40,12 +50,12 @@ st.text_area("Article", article, height=300)
 
 if article and labels:
     show_annot   = st.checkbox("Show annotated article view", True)
-    df_f = predict_entity_framing(article, labels, threshold)
+    df_f = predict_entity_framing(labels, threshold)
 
     # 2. Annotated article view
     if show_annot:
         st.header("2. Annotated Article")
-        html = reformat_text_html_with_tooltips(article, labels, hide_repeat)
+        html = reformat_text_html_with_tooltips(article, filter_labels_by_role(labels, role_filter), hide_repeat)
         st.components.v1.html(html, height=600, scrolling = True)     
 
     # 3. Entity framing & timeline
@@ -144,10 +154,11 @@ if article and labels:
                 f"</div>",
                 unsafe_allow_html=True
             )
-
+            
+            seen_fine_roles = None
             for sent in role_sentences['sentence'].unique():
-                html_block = format_sentence_with_spans(sent, labels, threshold, hide_repeat)
-                st_html(html_block, height=80, scrolling=False)
+                html_block, seen_fine_roles = format_sentence_with_spans(sent, filter_labels_by_role(labels, role_filter), threshold, hide_repeat, False, seen_fine_roles)
+                st.markdown(html_block, unsafe_allow_html = True)
 
             fine_df = df_f[df_f['main_role'] == role].explode('fine_roles')
             fine_df = fine_df[fine_df['fine_roles'].notnull() & (fine_df['fine_roles'] != '')]
@@ -164,7 +175,7 @@ if article and labels:
                     fine_sents = fine_df[fine_df['fine_roles'] == selected_fine]['sentence'].drop_duplicates()
                     st.markdown(f"**{selected_fine}** — {len(fine_sents)} sentence(s):")
                     for s in fine_sents:
-                        html_block = format_sentence_with_spans(s, labels, threshold, hide_repeat, True)
+                        html_block,seen_fine_roles = format_sentence_with_spans(s, filter_labels_by_role(labels, role_filter), threshold, hide_repeat, True, seen_fine_roles)
                         st_html(html_block, height=80, scrolling=False)
             else: 
                 for fine_role in fine_roles:
