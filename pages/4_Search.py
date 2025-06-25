@@ -3,6 +3,7 @@ import os
 from sidebar import render_sidebar, load_file_names
 from load_annotations import load_article, load_labels
 from render_text import reformat_text_html_with_tooltips
+from streamlit.components.v1 import html as st_html
 
 ROLE_COLORS = {
    "Protagonist": "#a1f4a1",
@@ -31,17 +32,16 @@ for f in files:
     article = load_article(f'{folder_path}/{f}').strip()
     if word in article:
         labels = load_labels(
-            'split_data' if user_folder != None else 'user_articles',
+            'split_data' if user_folder == None else 'user_articles',
             f,
             threshold
         )
-
+        
         st.write(f"#### {f} \n")
 
         with st.expander("Article", expanded=False):
             html = reformat_text_html_with_tooltips(article, labels, word)
             st.components.v1.html(html, height=600, scrolling = True)     
-
 
 
 st.markdown("---")

@@ -9,26 +9,26 @@ ROLE_COLORS = {
    "Innocent":    "#a1c9f4",
 }
 
-def reformat_text_html_with_tooltips(text, labels_dict, highlight_word=None):
+def reformat_text_html_with_tooltips(text, labels_dict, highlighted_word = None):
     spans = []
-
     for entity, mentions in labels_dict.items():
         if not isinstance(mentions, list):
             st.stop()
             raise TypeError(f"Expected a list for entity '{entity}', but got {type(mentions)}")
-
+      
         for i, mention in enumerate(mentions):
             if not isinstance(mention, dict):
                 st.stop()
                 raise TypeError(f"Malformed mention at entity '{entity}', index {i}: {mention}")
-
+          
             start = mention.get("start_offset", 0)
             end = mention.get("end_offset", 0)
-
+      
             # Clip to valid range
             start = max(0, min(start, len(text)))
-            end = max(start, min(end, len(text)))  # Ensure end ≥ start
-
+            end = max(start, min(end, len(text)))
+  
+            # Ensure end ≥ start
             color = ROLE_COLORS.get(mention.get("main_role", ""), "#000000")
             fine_roles = ", ".join([r.strip().title() for r in mention.get("fine_roles", [])])
             tooltip = (
@@ -36,9 +36,8 @@ def reformat_text_html_with_tooltips(text, labels_dict, highlight_word=None):
                 f"Confidence: {mention.get('confidence', 'N/A')}<br>"
                 f"Fine roles: {fine_roles}"
             )
-
-            entity_text = text[start:end].strip() or entity  # fallback if empty
-
+            entity_text = text[start:end].strip() or entity # fallback if empty
+          
             spans.append({
                 "start": start,
                 "end": end,
@@ -47,28 +46,27 @@ def reformat_text_html_with_tooltips(text, labels_dict, highlight_word=None):
                     f'style="background-color:{color}; padding:3px 6px; border-radius:4px;" '
                     f'data-tooltip="{tooltip}">'
                     f'{entity_text} | <span style="font-size: smaller;">{fine_roles}</span></span>'
-                )
-            })
-
+                    )
+                })
+              
     # Sort spans by start index
     spans.sort(key=lambda x: x["start"])
-
+      
     result = []
     last_idx = 0
     for span in spans:
         start, end = span["start"], span["end"]
         if start < last_idx:
             # Overlap detected, log it (optional)
-            continue  # skip or resolve overlap if needed
-
+            continue # skip or resolve overlap if needed
         result.append(text[last_idx:start])
         result.append(span["html"])
         last_idx = end
-
-    result.append(text[last_idx:])  # ALWAYS append tail
-
+              
+    result.append(text[last_idx:]) # ALWAYS append tail
+      
     annotated = ''.join(result)
-
+      
     html = (
         '<html><head>'
         '<script src="https://unpkg.com/@popperjs/core@2"></script>'
@@ -81,8 +79,8 @@ def reformat_text_html_with_tooltips(text, labels_dict, highlight_word=None):
         '</div>'
         '<script>'
         'tippy(".entity", {'
-        ' content: reference => reference.getAttribute("data-tooltip"),'
-        ' allowHTML: true,'
+        'content: reference => reference.getAttribute("data-tooltip"),'
+        'allowHTML: true,'
         ' trigger: "mouseenter click",'
         ' interactive: true,'
         ' animation: "scale"'
@@ -91,16 +89,15 @@ def reformat_text_html_with_tooltips(text, labels_dict, highlight_word=None):
         '</body></html>'
     )
 
-    if highlight_word:
-        # Escape for safety in regex
-        pattern = re.escape(highlight_word)
+    if highlighted_word:
+        pattern = re.escape(highlighted_word)
         html = re.sub(
-            f"(?<![\\w>])({pattern})(?![\\w<])",
-            r'<span style="border: 2px solid black; background-color:yellow; padding:1px 5px; margin: 0 1px; border-radius: 4px;">\1</span>',
+            rf"(?<![\w])({pattern})(?=\b|'s|s\b|\W)",
+            r'<span style="border: 2px solid black; background-color:yellow; padding:1px 4px; margin: 0 1px; border-radius: 4px;">\1</span>',
             html,
             flags=re.IGNORECASE
         )
-    
+  
     return html
 
 def predict_entity_framing(text, labels, threshold: float = 0.0):
