@@ -32,13 +32,14 @@ def render_sidebar(choose_user_folder = True, check_example = True, new_session 
         use_example = st.sidebar.checkbox("Use example article for illustration", value=st.session_state.use_example)
         if use_example != st.session_state.use_example:
             st.session_state.use_example = use_example
-            #st.rerun()
+            st.rerun()
     else:
         use_example = False
 
     hide_repeat = st.sidebar.checkbox("Make repeat annotations transparent", value=st.session_state.hide_repeat)
     if hide_repeat != st.session_state.hide_repeat:
         st.session_state.hide_repeat = hide_repeat
+        st.rerun()
 
     threshold = st.sidebar.slider("Narrative confidence threshold", 0.0, 1.0, st.session_state.threshold, 0.01)
     if threshold != st.session_state.threshold:
@@ -50,7 +51,9 @@ def render_sidebar(choose_user_folder = True, check_example = True, new_session 
         options=list(ROLE_COLORS.keys()),
         default=st.session_state.role_filter
     )
-    st.session_state.role_filter = role_filter
+    if role_filter != st.session_state.role_filter:
+        st.session_state.role_filter = role_filter
+        st.rerun()
 
     article = ""
     labels = []
