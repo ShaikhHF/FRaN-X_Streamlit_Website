@@ -12,16 +12,9 @@ from streamlit_echarts import st_echarts
 from pyvis.network import Network
 from collections import Counter
 import itertools
-from sidebar import render_sidebar, load_file_names
+from sidebar import render_sidebar, load_file_names, ROLE_COLORS
 from load_annotations import load_article, load_labels
 from render_text import reformat_text_html_with_tooltips, predict_entity_framing
-from streamlit.components.v1 import html as st_html
-
-ROLE_COLORS = {
-    "Protagonist": "#a1f4a1",
-    "Antagonist": "#f4a1a1",
-    "Innocent": "#a1c9f4",
-}
 
 def hex_to_rgb(hex_color):
     hex_color = hex_color.lstrip("#")
@@ -44,7 +37,7 @@ def generate_shades(base_hex, n):
 st.set_page_config(page_title="FRaN-X", layout="wide")
 
 # Sidebar
-article, labels, user_folder, threshold, role_filter = render_sidebar(False)
+article, labels, user_folder, threshold, role_filter, hide_repeat = render_sidebar(False)
 
 # Title Row with Dynamic Column Buttons
 title_col, spacer, add_col, remove_col = st.columns([3, 5, 1, 1])
@@ -86,7 +79,7 @@ for i, col in enumerate(columns):
             labels = load_labels(label_folder, selected_file, threshold)
             
 
-            html = reformat_text_html_with_tooltips(article_text, labels)
+            html = reformat_text_html_with_tooltips(article_text, labels, hide_repeat)
             line_count = article_text.count("\n") + 1
             st.components.v1.html(html, height=800, scrolling = True)
 

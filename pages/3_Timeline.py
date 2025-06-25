@@ -1,19 +1,13 @@
 import streamlit as st
 import pandas as pd
-from sidebar import render_sidebar
+from sidebar import render_sidebar, ROLE_COLORS
 from render_text import predict_entity_framing
-
-ROLE_COLORS = {
-   "Protagonist": "#a1f4a1",
-   "Antagonist":  "#f4a1a1",
-   "Innocent":    "#a1c9f4",
-}
 
 st.set_page_config(page_title="FRaN-X", layout="wide")
 st.title("In-Depth Timeline")
 st.write("See how each entity changes its main role and fine grain role over time")
 
-article, labels, user_folder, threshold, role_filter = render_sidebar()
+article, labels, user_folder, threshold, role_filter, hide_repeat = render_sidebar()
 
 
 def highlight_fine_roles(sentence, roles, color):

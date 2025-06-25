@@ -5,17 +5,11 @@ from bs4 import BeautifulSoup
 from sidebar import render_sidebar
 import os
 
-
-ROLE_COLORS = {
-   "Protagonist": "#a1f4a1",
-   "Antagonist":  "#f4a1a1",
-   "Innocent":    "#a1c9f4",
-}
 st.set_page_config(page_title="FRaN-X", initial_sidebar_state='expanded', layout="wide")
 st.title("Upload Articles")
 st.write("Choose a User Folder in the Sidebar to continue")
 
-article, labels, user_folder, threshold, role_filter = render_sidebar(True, False, True, True)
+article, labels, user_folder, threshold, role_filter, hide_repeat = render_sidebar(True, False, True, True)
 
 mode = st.radio("Input mode", ["Paste Text","URL"])
 if mode == "Paste Text":
@@ -39,8 +33,7 @@ if mode == "Paste Text":
                     f.write(article)
                 st.success(f"Article saved as {safe_filename}. Please wait while your entity framing is being calculated")
                     
-                time.sleep(2) 
-                    # adjust once backend connected
+                time.sleep(2) # adjust once backend connected
                     
                 st.rerun()
         else:

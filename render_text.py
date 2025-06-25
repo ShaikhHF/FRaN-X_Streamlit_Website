@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
-from streamlit.components.v1 import html as st_html
 import re
+from collections import defaultdict
+import html as html_utils 
 
 ROLE_COLORS = {
    "Protagonist": "#a1f4a1",
@@ -9,64 +10,107 @@ ROLE_COLORS = {
    "Innocent":    "#a1c9f4",
 }
 
-def reformat_text_html_with_tooltips(text, labels_dict, highlighted_word = None):
+def reformat_text_html_with_tooltips(text, labels_dict, hide_repeat=False, highlighted_word=None):
     spans = []
+    entity_history = defaultdict(set)
+
+    # Collect spans
     for entity, mentions in labels_dict.items():
         if not isinstance(mentions, list):
             st.stop()
             raise TypeError(f"Expected a list for entity '{entity}', but got {type(mentions)}")
-      
-        for i, mention in enumerate(mentions):
+
+        for mention in mentions:
             if not isinstance(mention, dict):
                 st.stop()
-                raise TypeError(f"Malformed mention at entity '{entity}', index {i}: {mention}")
-          
+                raise TypeError(f"Malformed mention at entity '{entity}': {mention}")
+
             start = mention.get("start_offset", 0)
             end = mention.get("end_offset", 0)
-      
-            # Clip to valid range
+
             start = max(0, min(start, len(text)))
             end = max(start, min(end, len(text)))
-  
-            # Ensure end ≥ start
-            color = ROLE_COLORS.get(mention.get("main_role", ""), "#000000")
-            fine_roles = ", ".join([r.strip().title() for r in mention.get("fine_roles", [])])
+
+            main_role = mention.get("main_role", "")
+            color = ROLE_COLORS.get(main_role, "#000000")
+            fine_roles_set = frozenset(r.strip().title() for r in mention.get("fine_roles", []))
+            fine_roles_str = ", ".join(fine_roles_set)
+
+            is_repeated = fine_roles_set in entity_history[entity]
+            adjusted_color = color
+            if hide_repeat and is_repeated and color.startswith("#"):
+                r, g, b = int(color[1:3], 16), int(color[3:5], 16), int(color[5:7], 16)
+                adjusted_color = f"rgba({r}, {g}, {b}, 0.3)"
+            else:
+                entity_history[entity].add(fine_roles_set)
+
             tooltip = (
-                f"Role: {mention.get('main_role', 'Unknown')}<br>"
+                f"Role: {main_role or 'Unknown'}<br>"
                 f"Confidence: {mention.get('confidence', 'N/A')}<br>"
-                f"Fine roles: {fine_roles}"
+                f"Fine roles: {fine_roles_str}"
             )
-            entity_text = text[start:end].strip() or entity # fallback if empty
-          
+
+            entity_text = text[start:end].strip() or entity
+
+            if highlighted_word:
+                pattern = re.escape(highlighted_word)
+                entity_text = re.sub(
+                    rf"(?<![\w])({pattern})(?=\b|'s|s\b|\W)",
+                    r'<span style="border: 2px solid black; background-color:yellow; padding:1px 4px; margin: 0 1px; border-radius: 4px;">\1</span>',
+                    entity_text,
+                    flags=re.IGNORECASE
+                )
+
             spans.append({
                 "start": start,
                 "end": end,
                 "html": (
                     f'<span class="entity" '
-                    f'style="background-color:{color}; padding:3px 6px; border-radius:4px;" '
+                    f'style="background-color:{adjusted_color}; padding:3px 6px; border-radius:4px;" '
                     f'data-tooltip="{tooltip}">'
-                    f'{entity_text} | <span style="font-size: smaller;">{fine_roles}</span></span>'
-                    )
-                })
-              
-    # Sort spans by start index
+                    f'{entity_text} | <span style="font-size: smaller;">{fine_roles_str}</span></span>'
+                )
+            })
+
+    # Sort by start offset
     spans.sort(key=lambda x: x["start"])
-      
+
+    # Assemble annotated text with optional highlighting
     result = []
     last_idx = 0
     for span in spans:
         start, end = span["start"], span["end"]
         if start < last_idx:
-            # Overlap detected, log it (optional)
-            continue # skip or resolve overlap if needed
-        result.append(text[last_idx:start])
+            continue  # Overlap detected
+
+        segment = text[last_idx:start]
+        if highlighted_word:
+            pattern = re.escape(highlighted_word)
+            segment = re.sub(
+                rf"(?<![\w])({pattern})(?=\b|'s|s\b|\W)",
+                r'<span style="border: 2px solid black; background-color:yellow; padding:1px 4px; margin:0 1px; border-radius:4px;">\1</span>',
+                segment,
+                flags=re.IGNORECASE
+            )
+        result.append(segment)
         result.append(span["html"])
         last_idx = end
-              
-    result.append(text[last_idx:]) # ALWAYS append tail
-      
+
+    # Handle the tail segment
+    tail = text[last_idx:]
+    if highlighted_word:
+        pattern = re.escape(highlighted_word)
+        tail = re.sub(
+            rf"(?<![\w])({pattern})(?=\b|'s|s\b|\W)",
+            r'<span style="border: 2px solid black; background-color:yellow; padding:1px 4px; margin:0 1px; border-radius:4px;">\1</span>',
+            tail,
+            flags=re.IGNORECASE
+        )
+    result.append(tail)
+
     annotated = ''.join(result)
-      
+
+    # Final HTML assembly
     html = (
         '<html><head>'
         '<script src="https://unpkg.com/@popperjs/core@2"></script>'
@@ -79,8 +123,8 @@ def reformat_text_html_with_tooltips(text, labels_dict, highlighted_word = None)
         '</div>'
         '<script>'
         'tippy(".entity", {'
-        'content: reference => reference.getAttribute("data-tooltip"),'
-        'allowHTML: true,'
+        ' content: reference => reference.getAttribute("data-tooltip"),'
+        ' allowHTML: true,'
         ' trigger: "mouseenter click",'
         ' interactive: true,'
         ' animation: "scale"'
@@ -89,16 +133,10 @@ def reformat_text_html_with_tooltips(text, labels_dict, highlighted_word = None)
         '</body></html>'
     )
 
-    if highlighted_word:
-        pattern = re.escape(highlighted_word)
-        html = re.sub(
-            rf"(?<![\w])({pattern})(?=\b|'s|s\b|\W)",
-            r'<span style="border: 2px solid black; background-color:yellow; padding:1px 4px; margin: 0 1px; border-radius: 4px;">\1</span>',
-            html,
-            flags=re.IGNORECASE
-        )
-  
     return html
+
+
+
 
 def predict_entity_framing(text, labels, threshold: float = 0.0):
     records = []
@@ -132,13 +170,12 @@ def predict_entity_framing(text, labels, threshold: float = 0.0):
 
 
 
-import html as html_utils 
-
-def format_sentence_with_spans(sentence_text, labels, threshold, show_fine_roles=False):
+def format_sentence_with_spans(sentence_text, labels, threshold, hide_repeat=True, show_fine_roles=False):
     spans = []
     used_spans = []
-
     sentence_lower = sentence_text.lower()
+
+    seen_fine_roles = defaultdict(set)  # Tracks seen fine roles for each entity
 
     for entity, mentions in labels.items():
         for mention in mentions:
@@ -162,13 +199,27 @@ def format_sentence_with_spans(sentence_text, labels, threshold, show_fine_roles
 
             used_spans.append((match_start, match_end))
 
-            color = ROLE_COLORS.get(mention.get('main_role', ''), "#000000")
-            fine_roles = ", ".join([r.strip().title() for r in mention.get('fine_roles', [])])
+            main_role = mention.get('main_role', '')
+            color = ROLE_COLORS.get(main_role, "#000000")
+            fine_roles_set = frozenset(r.strip().title() for r in mention.get('fine_roles', []))
+            fine_roles = ", ".join(fine_roles_set)
+
+            # Adjust color if repeated fine roles
+            is_repeated = fine_roles_set in seen_fine_roles[entity]
+            if hide_repeat and is_repeated and color.startswith("#") and len(color) == 7:
+                r = int(color[1:3], 16)
+                g = int(color[3:5], 16)
+                b = int(color[5:7], 16)
+                color = f"rgba({r}, {g}, {b}, 0.3)"
+            else:
+                seen_fine_roles[entity].add(fine_roles_set)
+
+            mention_display = html_utils.escape(sentence_text[match_start:match_end])
 
             if not show_fine_roles:
                 span_html = (
                     f'<span style="background-color:{color}; padding:3px 6px; border-radius:4px;">'
-                    f'{html_utils.escape(sentence_text[match_start:match_end])}'
+                    f'{mention_display}'
                     f'<span style="font-size:smaller; opacity:0.75;"> </span>'
                     f'</span>'
                 )
@@ -179,6 +230,7 @@ def format_sentence_with_spans(sentence_text, labels, threshold, show_fine_roles
                     f' |<span style="font-size:smaller; opacity:0.75;"> {fine_roles} </span>'
                     f'</span>'
                 )
+
 
             spans.append({
                 "start": match_start,
