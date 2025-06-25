@@ -2,16 +2,9 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 import re
-from sidebar import render_sidebar
+from sidebar import render_sidebar, ROLE_COLORS
 from render_text import reformat_text_html_with_tooltips, predict_entity_framing, format_sentence_with_spans
 from streamlit.components.v1 import html as st_html
-
-ROLE_COLORS = {
-   "Protagonist": "#a1f4a1",
-   "Antagonist":  "#f4a1a1",
-   "Innocent":    "#a1c9f4",
-}
-
 
 # Narrative classification
 def predict_narrative_classification(text, threshold=0.0):
@@ -40,7 +33,7 @@ st.title("FRaN-X: Entity Framing & Narrative Analysis")
 # Article input
 st.header("1. Article Input")
 
-article, labels, user_folder, threshold, role_filter = render_sidebar()
+article, labels, user_folder, threshold, role_filter, hide_repeat = render_sidebar()
 
 
 st.text_area("Article", article, height=300)
@@ -52,7 +45,7 @@ if article and labels:
     # 2. Annotated article view
     if show_annot:
         st.header("2. Annotated Article")
-        html = reformat_text_html_with_tooltips(article, labels)
+        html = reformat_text_html_with_tooltips(article, labels, hide_repeat)
         st.components.v1.html(html, height=600, scrolling = True)     
 
     # 3. Entity framing & timeline
@@ -153,7 +146,7 @@ if article and labels:
             )
 
             for sent in role_sentences['sentence'].unique():
-                html_block = format_sentence_with_spans(sent, labels, threshold)
+                html_block = format_sentence_with_spans(sent, labels, threshold, hide_repeat)
                 st_html(html_block, height=80, scrolling=False)
 
             fine_df = df_f[df_f['main_role'] == role].explode('fine_roles')
@@ -171,7 +164,7 @@ if article and labels:
                     fine_sents = fine_df[fine_df['fine_roles'] == selected_fine]['sentence'].drop_duplicates()
                     st.markdown(f"**{selected_fine}** — {len(fine_sents)} sentence(s):")
                     for s in fine_sents:
-                        html_block = format_sentence_with_spans(s, labels, threshold)
+                        html_block = format_sentence_with_spans(s, labels, threshold, hide_repeat, True)
                         st_html(html_block, height=80, scrolling=False)
             else: 
                 for fine_role in fine_roles:

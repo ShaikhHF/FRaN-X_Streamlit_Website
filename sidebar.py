@@ -20,6 +20,8 @@ def render_sidebar(choose_user_folder = True, check_example = True, new_session 
     # State initialization
     if "use_example" not in st.session_state:
         st.session_state.use_example = False
+    if "hide_repeat" not in st.session_state:
+        st.session_state.hide_repeat = False
     if "threshold" not in st.session_state:
         st.session_state.threshold = 0.5
     if "role_filter" not in st.session_state:
@@ -33,6 +35,10 @@ def render_sidebar(choose_user_folder = True, check_example = True, new_session 
             #st.rerun()
     else:
         use_example = False
+
+    hide_repeat = st.sidebar.checkbox("Make repeat annotations transparent", value=st.session_state.hide_repeat)
+    if hide_repeat != st.session_state.hide_repeat:
+        st.session_state.hide_repeat = hide_repeat
 
     threshold = st.sidebar.slider("Narrative confidence threshold", 0.0, 1.0, st.session_state.threshold, 0.01)
     if threshold != st.session_state.threshold:
@@ -101,4 +107,4 @@ def render_sidebar(choose_user_folder = True, check_example = True, new_session 
             elif not valid_files:
                 st.sidebar.warning("⚠️ No files found in the selected folder.")
 
-    return article, labels, user_folder, threshold, role_filter
+    return article, labels, user_folder, threshold, role_filter, hide_repeat

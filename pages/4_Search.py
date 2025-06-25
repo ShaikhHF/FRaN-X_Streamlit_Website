@@ -3,17 +3,11 @@ import os
 from sidebar import render_sidebar, load_file_names
 from load_annotations import load_article, load_labels
 from render_text import reformat_text_html_with_tooltips
-from streamlit.components.v1 import html as st_html
 
-ROLE_COLORS = {
-   "Protagonist": "#a1f4a1",
-   "Antagonist":  "#f4a1a1",
-   "Innocent":    "#a1c9f4",
-}
 st.set_page_config(page_title="FRaN-X", initial_sidebar_state='expanded', layout="wide")
 st.title("Search")
 
-article, labels, user_folder, threshold, role_filter = render_sidebar(True, True, False, False)
+article, labels, user_folder, threshold, role_filter, hide_repeat = render_sidebar(True, True, False, False)
 
 folder_path = 'chunk_data' if user_folder == None else 'user_articles'
 
@@ -36,11 +30,11 @@ for f in files:
             f,
             threshold
         )
-        
+
         st.write(f"#### {f} \n")
 
         with st.expander("Article", expanded=False):
-            html = reformat_text_html_with_tooltips(article, labels, word)
+            html = reformat_text_html_with_tooltips(article, labels, hide_repeat, word)
             st.components.v1.html(html, height=600, scrolling = True)     
 
 
