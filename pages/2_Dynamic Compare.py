@@ -84,7 +84,7 @@ for i, col in enumerate(columns):
             st.components.v1.html(html, height=800, scrolling = True)
 
             # Role distribution collection
-            df_f = predict_entity_framing(article_text, labels, threshold)
+            df_f = predict_entity_framing(labels, threshold)
 
             df_f = df_f[df_f['main_role'].isin(role_filter)]
             if not df_f.empty:
@@ -142,7 +142,7 @@ if distribution_data:
         if selected_file and selected_file != "Select a file":
             article_text = load_article(f"{article_folder}/{selected_file}")
             labels = load_labels(label_folder, selected_file, threshold)
-            df_detail = predict_entity_framing(article_text, labels, threshold)
+            df_detail = predict_entity_framing(labels, threshold)
             df_detail = df_detail[df_detail['main_role'].isin(role_filter)]
             all_detailed_data.append(df_detail)
 
@@ -307,7 +307,7 @@ if distribution_data:
         if selected_file and selected_file != "Select a file":
             article_text = load_article(f"{article_folder}/{selected_file}")
             labels = load_labels(label_folder, selected_file, threshold)
-            df_network = predict_entity_framing(article_text, labels, threshold)
+            df_network = predict_entity_framing(labels, threshold)
             df_network = df_network[df_network['main_role'].isin(role_filter)]
             df_network = df_network.explode("fine_roles")
             df_network['fine_roles'] = df_network['fine_roles'].str.strip().str.title()
