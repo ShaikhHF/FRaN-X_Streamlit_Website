@@ -249,11 +249,11 @@ def format_sentence_with_spans(sentence_text, labels, threshold, hide_repeat=Tru
     body = ''.join(result)
 
     full_html = (
-        '<html><head>'
-        '<style> body { font-family: sans-serif; } </style>'
-        '</head><body>'
-        '<div style="white-space: pre-wrap;">' + body + '</br> </div>'
-        '</body></html>'
+    '<div class="franx-block">'
+    '<style> .franx-block { font-family: sans-serif; } </style>'
+    '<div style="white-space: pre-wrap;">' + body + '<br> </div>'
+    '</div>'
     )
+
 
     return full_html, seen_fine_roles

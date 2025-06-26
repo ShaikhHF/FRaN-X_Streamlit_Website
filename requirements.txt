@@ -7,3 +7,4 @@ streamlit-echarts
 matplotlib
 networkx
 pyvis
+rapidfuzz
