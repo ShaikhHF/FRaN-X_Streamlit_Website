@@ -47,7 +47,7 @@ st.write("Better understand the capabilites and features of the website by using
 
 st.write("Use the **Home** and **Dynamic Compare Page** to look into 1 article or up to 4 articles at once respectively.")
 
-st.write("The **Timeline Page** allows you to see the annotations grouped by their respective entity over the course of an article and specifically points out when the role of an entity changes.")
+st.write("See the annotations grouped by their respective entity over the course of an article and easily find when the role of an entity changes on the **Timeline Page**.")
 
 st.write("Highlight keywords found in a set of articles in the **Search Page**.")
 

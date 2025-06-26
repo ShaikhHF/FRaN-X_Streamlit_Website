@@ -15,6 +15,7 @@ import itertools
 from sidebar import render_sidebar, load_file_names, ROLE_COLORS
 from load_annotations import load_article, load_labels
 from render_text import reformat_text_html_with_tooltips, predict_entity_framing
+from rapidfuzz import fuzz, process
 
 def hex_to_rgb(hex_color):
     hex_color = hex_color.lstrip("#")
@@ -32,6 +33,53 @@ def generate_shades(base_hex, n):
         rgb_to_hex(colorsys.hls_to_rgb(h, max(0, min(1, l + i * 0.04)), s))
         for i in range(n)
     ]
+
+import pandas as pd
+from rapidfuzz import fuzz, process
+
+def normalize_entities(graph_df, threshold=90):
+    def clean_text(text):
+        return text.strip().lower().replace(".", "").replace(",", "")
+
+    # Manual alias handling first (cleaned)
+    manual_aliases = {
+        "us": "United States",
+        "u.s.": "United States",
+        "u.s": "United States",
+        "usa": "United States",
+        "united states of america": "United States",
+        "the united states": "United States",
+        "putin": "Vladimir Putin",
+        "v putin": "Vladimir Putin"
+    }
+
+    graph_df = graph_df.copy()  # Avoid modifying the original DataFrame
+    graph_df['entity_clean'] = graph_df['entity'].apply(clean_text)
+
+    # Start with manual mappings
+    canonical_map = {k: v for k, v in manual_aliases.items()}
+
+    # Use fuzzy matching to expand canonical map for unmapped entries
+    entity_list = graph_df['entity_clean'].unique().tolist()
+    for entity in entity_list:
+        if entity in canonical_map:
+            continue
+        matches = process.extract(entity, list(entity_list), scorer=fuzz.token_sort_ratio)
+        for match, score, _ in matches:
+            if score >= threshold and match in canonical_map:
+                canonical_map[entity] = canonical_map[match]
+                break
+
+    # Apply mapping
+    graph_df['entity'] = graph_df['entity_clean'].map(canonical_map).fillna(graph_df['entity_clean'])
+    graph_df['entity'] = graph_df['entity'].apply(lambda x: x.title())
+
+    # Drop temp column now that we're done
+    graph_df.drop(columns=['entity_clean'], inplace=True)
+
+    return graph_df
+
+
 
 
 st.set_page_config(page_title="FRaN-X", layout="wide")
@@ -300,6 +348,10 @@ if distribution_data:
 
         st_echarts(options=options, height="600px")
 
+
+
+
+
     # --- Network Graphs ---
     network_rows = []
     for i in range(column_count):
@@ -332,6 +384,8 @@ if distribution_data:
             nodes = doc_df["node_label"].unique()
             pairs = itertools.combinations(sorted(nodes), 2)
             co_occurrence.update(pairs)
+
+        graph_df = normalize_entities(graph_df, 70)
 
         # Create graph: nodes = entity+role, edges = co-occurrence in the same document
         G = nx.Graph()
@@ -404,7 +458,7 @@ if distribution_data:
             color = ROLE_COLORS.get(role, "#cccccc")
 
             if G.has_node(node_id):
-                G.nodes[node_id]['size'] += 3
+                G.nodes[node_id]['size'] += 5
             else:
                 G.add_node(node_id, label=node_id, color=color, size=15)
 
@@ -416,7 +470,7 @@ if distribution_data:
                     if G.has_edge(e1, e2):
                         G[e1][e2]['weight'] += 5
                     else:
-                        G.add_edge(e1, e2, weight=1)
+                        G.add_edge(e1, e2, weight=0.5)
 
         # Create and render the network
         net = Network(height="600px", width="100%", bgcolor="#ffffff", font_color="black")
