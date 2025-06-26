@@ -34,8 +34,6 @@ def generate_shades(base_hex, n):
         for i in range(n)
     ]
 
-import pandas as pd
-from rapidfuzz import fuzz, process
 
 def normalize_entities(graph_df, threshold=90):
     def clean_text(text):
@@ -141,6 +139,8 @@ for i, col in enumerate(columns):
                 counts['article'] = selected_file
                 distribution_data.append(counts)
 
+
+# Sidebar Toggles
 st.sidebar.header(" Data Visualization")
 check_stacked = st.sidebar.checkbox("100% Stacked Bar: Main Role Distribution Comparision", True)
 check_bar = st.sidebar.checkbox("Bar Chart: Fine Grain by Main Role Breakdown", True)
@@ -148,6 +148,7 @@ check_pie_main = st.sidebar.checkbox("Pie Chart: Fine Grain by Main Role Breakdo
 check_pie_role = st.sidebar.checkbox("Pie Chart: Role Breakdown", True)
 check_network_static = st.sidebar.checkbox("Network Graph: Static", True)
 check_network_interactive = st.sidebar.checkbox("Netowrk Graph: Interactive", True)
+
 
 # Compare Distributions Across Articles
 if distribution_data:
@@ -357,7 +358,6 @@ if distribution_data:
     for i in range(column_count):
         selected_file = st.session_state.get(f"file_{i}")
         if selected_file and selected_file != "Select a file":
-            article_text = load_article(f"{article_folder}/{selected_file}")
             labels = load_labels(label_folder, selected_file, threshold)
             df_network = predict_entity_framing(labels, threshold)
             df_network = df_network[df_network['main_role'].isin(role_filter)]
