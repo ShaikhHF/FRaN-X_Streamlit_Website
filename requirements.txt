@@ -8,3 +8,4 @@ matplotlib
 networkx
 pyvis
 rapidfuzz
+st_theme
