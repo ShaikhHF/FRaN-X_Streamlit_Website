@@ -5,6 +5,13 @@ import re
 from sidebar import render_sidebar, ROLE_COLORS
 from render_text import reformat_text_html_with_tooltips, predict_entity_framing, format_sentence_with_spans
 from streamlit.components.v1 import html as st_html
+import streamlit as st
+#from langchain_openai.chat_models import ChatOpenAI
+
+#def generate_response(input_text):
+    #model = ChatOpenAI(temperature=0.7, api_key=openai_api_key)
+    #st.info(model.invoke(input_text))
+
 
 # Narrative classification
 def predict_narrative_classification(text, threshold=0.0):
@@ -38,7 +45,6 @@ def filter_labels_by_role(labels, role_filter):
 
 st.set_page_config(page_title="FRaN-X", initial_sidebar_state='expanded', layout="wide")
 st.title("FRaN-X: Entity Framing & Narrative Analysis")
-
 
 # Article input
 st.header("1. Article Input")
@@ -174,6 +180,7 @@ if article and labels:
                 if selected_fine != "Show all":
                     fine_sents = fine_df[fine_df['fine_roles'] == selected_fine]['sentence'].drop_duplicates()
                     st.markdown(f"**{selected_fine}** — {len(fine_sents)} sentence(s):")
+                    seen_fine_roles = None
                     for s in fine_sents:
                         html_block,seen_fine_roles = format_sentence_with_spans(s, filter_labels_by_role(labels, role_filter), threshold, hide_repeat, True, seen_fine_roles)
                         st_html(html_block, height=80, scrolling=False)
@@ -212,6 +219,25 @@ if article and labels:
     #suggestions = identify_bias_and_rewrite(article, mode_rw)
     #for s in suggestions:
     #    st.write(f"**Span:** {s['span']}  \n**Suggestion:** {s['suggestion']}")
+
+    #openai_api_key = st.text_input("OpenAI API Key", type="password")
+
+    #st.write(role_sentences)
+
+
+    #sent = st.selectbox("Choose sentence: ", role_sentences['sentence'])
+
+
+    #text = "Enter text:" + "Give an explanation for why the following sentence has been annotated as an Antagonist, Protogonist, or Innocent based on the surrounding context:",sent
+    
+    #st.write(text)
+
+    #submitted = st.form_submit_button("Submit")
+    #if not openai_api_key.startswith("sk-"):
+        #st.warning("Please enter your OpenAI API key!", icon="⚠")
+    #if submitted and openai_api_key.startswith("sk-"):
+        #generate_response(text)
+
 
 
 

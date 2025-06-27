@@ -1,12 +1,17 @@
 import streamlit as st
 import os
 from load_annotations import load_article, load_labels
+from streamlit_theme import st_theme
 
 ROLE_COLORS = {
     "Protagonist": "#a1f4a1",
     "Antagonist":  "#f4a1a1",
     "Innocent":    "#a1c9f4",
 }
+def get_text_color():
+    #bg_color = st.session_state.franx_theme.lower()
+    #return "#000000" if bg_color in ("#ffffff", "ffffff") else "#ffffff"
+    return '#000000'
 
 def load_file_names(folder_path):
     files = os.listdir(folder_path)
@@ -26,6 +31,9 @@ def render_sidebar(choose_user_folder = True, check_example = True, new_session 
         st.session_state.threshold = 0.5
     if "role_filter" not in st.session_state:
         st.session_state.role_filter = list(ROLE_COLORS.keys())
+    #if "franx_theme" not in st.session_state:
+        #st.session_state.franx_theme = st_theme(key="franx_theme")
+
 
     # Sidebar widget
     if check_example:
@@ -51,9 +59,9 @@ def render_sidebar(choose_user_folder = True, check_example = True, new_session 
         options=list(ROLE_COLORS.keys()),
         default=st.session_state.role_filter
     )
-    if role_filter != st.session_state.role_filter:
-        st.session_state.role_filter = role_filter
-        st.rerun()
+    #if role_filter != st.session_state.role_filter:
+        #st.session_state.role_filter = role_filter
+        #st.rerun()
 
     article = ""
     labels = []
