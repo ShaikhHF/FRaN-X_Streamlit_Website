@@ -366,56 +366,72 @@ if distribution_data:
             df_network = df_network[df_network['fine_roles'].notnull() & (df_network['fine_roles'] != '')]
             df_network['article'] = selected_file
             network_rows.append(df_network)
+    
+    if not network_rows:
+        st.warning("No data to display. Select file(s) with annotated content.")
+        st.stop()
+    
+    else:
+        st.header("Filtered Network Graph")
 
-    if network_rows:
         graph_df = pd.concat(network_rows)
+        graph_df['entity'] = graph_df['entity'].str.strip().str.title()
+        graph_df['node_label'] = graph_df['entity'] + " (" + graph_df['fine_roles'] + ")"
 
-        # Create node labels
+        # -- Multiselect for restrict_entities --
+        restrict_entities = st.multiselect(
+            "Include entities",
+            options=graph_df['entity'].unique(),
+            default=graph_df['entity'].unique()
+        )
+
+        # Filter graph_df based on selected entities
+        graph_df = graph_df[graph_df['entity'].isin(restrict_entities)]
+
+        if graph_df.empty:
+            st.info("No matching entities after filter.")
+            st.stop()
+
+        # Rebuild node labels post-filter
         graph_df["node_label"] = graph_df["entity"] + " (" + graph_df["fine_roles"] + ")"
 
-        # Count mentions for node sizes
-        node_sizes = graph_df["node_label"].value_counts().to_dict()
-
-        # Assign colors based on main_role
-        main_roles = graph_df["main_role"].unique()
-
+        # -- Rebuild co-occurrence from filtered data --
         co_occurrence = Counter()
-        for _, doc_df in graph_df.groupby("article"):
-            nodes = doc_df["node_label"].unique()
+        for _, group in graph_df.groupby("article"):
+            nodes = group["node_label"].unique()
             pairs = itertools.combinations(sorted(nodes), 2)
             co_occurrence.update(pairs)
 
-        graph_df = normalize_entities(graph_df, 70)
-
-        # Create graph: nodes = entity+role, edges = co-occurrence in the same document
+        # -- Build the graph --
         G = nx.Graph()
         for node, row in graph_df.groupby("node_label").first().iterrows():
             G.add_node(node, role=row["main_role"])
 
-        if check_network_static:
-            # Add edges with weight = co-occurrence count
-            for (node1, node2), weight in co_occurrence.items():
+        for (node1, node2), weight in co_occurrence.items():
+            if node1 in G and node2 in G:
                 G.add_edge(node1, node2, weight=weight)
 
-            max_weight = max(nx.get_edge_attributes(G, "weight").values(), default=1)
-            edge_widths = [G[u][v]["weight"] * 2 for u, v in G.edges()]  # scale up for visibility
+        # -- Visualization --
 
-            edge_widths = []
-            edge_colors = []
-            for u, v in G.edges():
-                weight = G[u][v]["weight"]
-                # Scale edge width non-linearly for clarity
-                edge_widths.append(0.1 + (weight**2.5))  
-                # Darker color for heavier weights using grayscale mapping
-                intensity = min(0.9, 0.3 + 0.7 * (weight / max_weight))  # 0.3 to 1.0 brightness
-                color = mcolors.to_hex((1 - intensity, 1 - intensity, 1 - intensity))  # grayscale
-                edge_colors.append(color)
+        if G.number_of_nodes() == 0:
+            st.info("No nodes to visualize.")
+            st.stop()
 
-            # Draw graph
-            node_colors = [
-                ROLE_COLORS.get(G.nodes[node]['role'], "#cccccc")
-                for node in G.nodes()
-            ]
+        pos = nx.spring_layout(G, seed=42)
+        max_weight = max(nx.get_edge_attributes(G, "weight").values(), default=1)
+
+        edge_widths = []
+        edge_colors = []
+        for u, v in G.edges():
+            w = G[u][v]["weight"]
+            edge_widths.append(0.1 + (w**2.5))
+            intensity = min(0.9, 0.3 + 0.7 * (w / max_weight))
+            edge_colors.append(mcolors.to_hex((1 - intensity, 1 - intensity, 1 - intensity)))
+
+        node_colors = [ROLE_COLORS.get(G.nodes[n]["role"], "#cccccc") for n in G.nodes()]
+
+        if True:
+            node_sizes = graph_df["node_label"].value_counts().to_dict()
 
             plt.figure(figsize=(14, 14))
             pos = nx.spring_layout(G, k=2, iterations=100, seed=42)

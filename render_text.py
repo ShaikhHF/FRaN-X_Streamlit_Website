@@ -5,12 +5,14 @@ from collections import defaultdict
 import html as html_utils 
 from collections import defaultdict
 import html as html_utils
+from sidebar import get_text_color
 
 ROLE_COLORS = {
    "Protagonist": "#a1f4a1",
    "Antagonist":  "#f4a1a1",
    "Innocent":    "#a1c9f4",
 }
+
 
 def reformat_text_html_with_tooltips(text, labels_dict, hide_repeat=False, highlighted_word=None):
     spans = []
@@ -40,10 +42,7 @@ def reformat_text_html_with_tooltips(text, labels_dict, hide_repeat=False, highl
 
             is_repeated = fine_roles_set in entity_history[entity]
             adjusted_color = color
-            if hide_repeat and is_repeated and color.startswith("#"):
-                r, g, b = int(color[1:3], 16), int(color[3:5], 16), int(color[5:7], 16)
-                adjusted_color = f"rgba({r}, {g}, {b}, 0.3)"
-            else:
+            if not (hide_repeat and is_repeated and color.startswith("#")):
                 entity_history[entity].add(fine_roles_set)
 
             tooltip = (
@@ -55,24 +54,26 @@ def reformat_text_html_with_tooltips(text, labels_dict, hide_repeat=False, highl
             entity_text = text[start:end].strip() or entity
 
             if highlighted_word:
-                pattern = re.escape(highlighted_word)
-                entity_text = re.sub(
-                    rf"(?<![\w])({pattern})(?=\b|'s|s\b|\W)",
-                    r'<span style="border: 2px solid black; background-color:yellow; padding:1px 4px; margin: 0 1px; border-radius: 4px;">\1</span>',
-                    entity_text,
-                    flags=re.IGNORECASE
+                pattern = re.compile(re.escape(highlighted_word), flags=re.IGNORECASE)
+                entity_text = pattern.sub(
+                    r'<span style="border: 2px solid black; background-color: yellow; padding:1px 4px; margin: 0 1px; border-radius: 4px;">\g<0></span>',
+                    entity_text
                 )
 
-            spans.append({
-                "start": start,
-                "end": end,
-                "html": (
-                    f'<span class="entity" '
-                    f'style="background-color:{adjusted_color}; padding:3px 6px; border-radius:4px;" '
-                    f'data-tooltip="{tooltip}">'
-                    f'{entity_text} | <span style="font-size: smaller;">{fine_roles_str}</span></span>'
-                )
-            })
+            if hide_repeat and is_repeated:
+                continue  # skip rendering this mention entirely
+            else:
+                spans.append({
+                    "start": start,
+                    "end": end,
+                    "html": (
+                        f'<span class="entity" '
+                        f'style="background-color:{adjusted_color}; padding:3px 6px; border-radius:4px;" '
+                        f'data-tooltip="{tooltip}">'
+                        f'{entity_text} | <span style="font-size: smaller;">{fine_roles_str}</span></span>'
+                    )
+                })
+
 
     # Sort by start offset
     spans.sort(key=lambda x: x["start"])
@@ -87,53 +88,68 @@ def reformat_text_html_with_tooltips(text, labels_dict, hide_repeat=False, highl
 
         segment = text[last_idx:start]
         if highlighted_word:
-            pattern = re.escape(highlighted_word)
-            segment = re.sub(
-                rf"(?<![\w])({pattern})(?=\b|'s|s\b|\W)",
-                r'<span style="border: 2px solid black; background-color:yellow; padding:1px 4px; margin:0 1px; border-radius:4px;">\1</span>',
-                segment,
-                flags=re.IGNORECASE
+            pattern = re.compile(re.escape(highlighted_word), flags=re.IGNORECASE)
+            segment = pattern.sub(
+                r'<span style="border: 2px solid black; background-color:yellow; padding:1px 4px; margin:0 1px; border-radius:4px;">\g<0></span>',
+                segment
             )
+
         result.append(segment)
         result.append(span["html"])
         last_idx = end
 
     # Handle the tail segment
     tail = text[last_idx:]
+
     if highlighted_word:
-        pattern = re.escape(highlighted_word)
-        tail = re.sub(
-            rf"(?<![\w])({pattern})(?=\b|'s|s\b|\W)",
-            r'<span style="border: 2px solid black; background-color:yellow; padding:1px 4px; margin:0 1px; border-radius:4px;">\1</span>',
-            tail,
-            flags=re.IGNORECASE
+        pattern = re.compile(re.escape(highlighted_word), flags=re.IGNORECASE)
+        tail = pattern.sub(
+            r'<span style="border: 2px solid black; background-color:yellow; padding:1px 4px; margin:0 1px; border-radius:4px;">\g<0></span>',
+            tail
         )
     result.append(tail)
 
+    #More strict version of searching        
+    #if highlighted_word and False:
+        #pattern = re.escape(highlighted_word)
+        #tail = re.sub(
+            #rf"(?<![\w])({pattern})(?=\b|'s|s\b|\W)"
+            #r'<span style="border: 2px solid black; background-color:yellow; padding:1px 4px; margin:0 1px; border-radius:4px;">\1</span>',
+            #tail,
+            #flags=re.IGNORECASE
+        #)
+    #result.append(tail)
+
     annotated = ''.join(result)
 
-    # Final HTML assembly
-    html = (
-        '<html><head>'
-        '<script src="https://unpkg.com/@popperjs/core@2"></script>'
-        '<script src="https://unpkg.com/tippy.js@6"></script>'
-        '<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/animations/scale.css"/>'
-        '<style> body { font-family: sans-serif; } </style>'
-        '</head><body>'
-        '<div style="white-space: pre-wrap;">'
-        + annotated +
-        '</div>'
-        '<script>'
-        'tippy(".entity", {'
-        ' content: reference => reference.getAttribute("data-tooltip"),'
-        ' allowHTML: true,'
-        ' trigger: "mouseenter click",'
-        ' interactive: true,'
-        ' animation: "scale"'
-        '});'
-        '</script>'
-        '</body></html>'
-    )
+    html = f"""
+    <html><head>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/animations/scale.css"/>
+    <style>
+    body {{
+        font-family: sans-serif;
+        color: {get_text_color()};
+    }}
+    </style>
+    </head><body>
+    <div style="white-space: pre-wrap;">
+    {annotated}
+    </div>
+    <script>
+    tippy(".entity", {{
+    content: reference => reference.getAttribute("data-tooltip"),
+    allowHTML: true,
+    trigger: "mouseenter click",
+    interactive: true,
+    animation: "scale"
+    }});
+    </script>
+    </body></html>
+    """
+
+
 
     return html
 
@@ -249,10 +265,10 @@ def format_sentence_with_spans(sentence_text, labels, threshold, hide_repeat=Tru
     body = ''.join(result)
 
     full_html = (
-    '<div class="franx-block">'
-    '<style> .franx-block { font-family: sans-serif; } </style>'
-    '<div style="white-space: pre-wrap;">' + body + '<br> </div>'
-    '</div>'
+        '<div class="franx-block">'
+        f'<style>.franx-block {{ font-family: sans-serif; color: {get_text_color()}; }}</style>'
+        f'<div style="white-space: pre-wrap;">{body}<br></div>'
+        '</div>'
     )
 
 

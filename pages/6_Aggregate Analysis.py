@@ -93,29 +93,35 @@ for f in files:
     df_network['article'] = article_text
     network_rows.append(df_network)
 
-graph_df = pd.concat(network_rows)
+graph_df = pd.DataFrame()
+if network_rows:
+    graph_df = pd.concat(network_rows)
 
-# Create node labels
-graph_df["node_label"] = graph_df["entity"] + " (" + graph_df["fine_roles"] + ")"
+    # Create node labels
+    graph_df["node_label"] = graph_df["entity"] + " (" + graph_df["fine_roles"] + ")"
 
-# Count mentions for node sizes
-node_sizes = graph_df["node_label"].value_counts().to_dict()
+    # Count mentions for node sizes
+    node_sizes = graph_df["node_label"].value_counts().to_dict()
 
-# Assign colors based on main_role
-main_roles = graph_df["main_role"].unique()
+    # Assign colors based on main_role
+    main_roles = graph_df["main_role"].unique()
 
-co_occurrence = Counter()
-for _, doc_df in graph_df.groupby("article"):
-    nodes = doc_df["node_label"].unique()
-    pairs = itertools.combinations(sorted(nodes), 2)
-    co_occurrence.update(pairs)
+    co_occurrence = Counter()
+    for _, doc_df in graph_df.groupby("article"):
+        nodes = doc_df["node_label"].unique()
+        pairs = itertools.combinations(sorted(nodes), 2)
+        co_occurrence.update(pairs)
 
-graph_df = normalize_entities(graph_df, 70)
+    graph_df = normalize_entities(graph_df, 70)
 
 # --- Interactive Network Graph ---
 if not graph_df.empty:
     st.header("Network Graph")
     st.write("Interact with the connection between the entity,role nodes present across multiple documents. The edges represent a document where the two nodes are both present. ")
+    st.write("You may have to wait a moment after changing selections for the graph to display. ")
+
+    restrict_entities = st.multiselect("Entities", options=graph_df['entity'].unique(), default=graph_df['entity'].unique())
+    graph_df = graph_df[graph_df['entity'].isin(restrict_entities)]
 
     # Build the graph
     G = nx.Graph()
@@ -140,7 +146,7 @@ if not graph_df.empty:
                     G.add_edge(e1, e2, weight=0.5)
 
     # Create and render the network
-    net = Network(height="600px", width="100%", bgcolor="#ffffff", font_color="black")
+    net = Network(height="1000px", width="100%", bgcolor="#ffffff", font_color="black")
     net.from_nx(G)
     net.repulsion(node_distance=150, spring_length=200)
     net.show_buttons(filter_=["physics"])
@@ -152,7 +158,7 @@ if not graph_df.empty:
 
     with open(tmp_path, 'r', encoding='utf-8') as f:
         html_content = f.read()
-    components.html(html_content, height=1000, scrolling=True)
+    components.html(html_content, height=1500, scrolling=True)
 
     # Optional cleanup
     os.remove(tmp_path)
