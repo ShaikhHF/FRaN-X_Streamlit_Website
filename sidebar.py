@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 from load_annotations import load_article, load_labels
-from streamlit_theme import st_theme
+#from streamlit_theme import st_theme
 
 ROLE_COLORS = {
     "Protagonist": "#a1f4a1",
