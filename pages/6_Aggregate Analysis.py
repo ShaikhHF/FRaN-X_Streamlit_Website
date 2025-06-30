@@ -6,54 +6,10 @@ import tempfile
 import networkx as nx
 import streamlit.components.v1 as components
 from collections import Counter
-from rapidfuzz import fuzz, process
 from pyvis.network import Network
 from sidebar import render_sidebar, load_file_names, ROLE_COLORS
 from load_annotations import load_article, load_labels
-from render_text import predict_entity_framing
-
-
-def normalize_entities(graph_df, threshold=90):
-    def clean_text(text):
-        return text.strip().lower().replace(".", "").replace(",", "")
-
-    # Manual alias handling first (cleaned)
-    manual_aliases = {
-        "us": "United States",
-        "u.s.": "United States",
-        "u.s": "United States",
-        "usa": "United States",
-        "united states of america": "United States",
-        "the united states": "United States",
-        "putin": "Vladimir Putin",
-        "v putin": "Vladimir Putin"
-    }
-
-    graph_df = graph_df.copy()  # Avoid modifying the original DataFrame
-    graph_df['entity_clean'] = graph_df['entity'].apply(clean_text)
-
-    # Start with manual mappings
-    canonical_map = {k: v for k, v in manual_aliases.items()}
-
-    # Use fuzzy matching to expand canonical map for unmapped entries
-    entity_list = graph_df['entity_clean'].unique().tolist()
-    for entity in entity_list:
-        if entity in canonical_map:
-            continue
-        matches = process.extract(entity, list(entity_list), scorer=fuzz.token_sort_ratio)
-        for match, score, _ in matches:
-            if score >= threshold and match in canonical_map:
-                canonical_map[entity] = canonical_map[match]
-                break
-
-    # Apply mapping
-    graph_df['entity'] = graph_df['entity_clean'].map(canonical_map).fillna(graph_df['entity_clean'])
-    graph_df['entity'] = graph_df['entity'].apply(lambda x: x.title())
-
-    # Drop temp column now that we're done
-    graph_df.drop(columns=['entity_clean'], inplace=True)
-
-    return graph_df
+from render_text import predict_entity_framing, normalize_entities
 
 
 st.set_page_config(page_title="FRaN-X", initial_sidebar_state='expanded', layout="wide")

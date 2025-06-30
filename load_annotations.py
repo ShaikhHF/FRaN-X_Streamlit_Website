@@ -1,6 +1,5 @@
 import csv
 from collections import defaultdict
-import os
 from pathlib import Path
 
 
