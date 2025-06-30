@@ -6,7 +6,19 @@ from sidebar import render_sidebar, ROLE_COLORS
 from render_text import reformat_text_html_with_tooltips, predict_entity_framing, format_sentence_with_spans
 from streamlit.components.v1 import html as st_html
 import streamlit as st
-#from langchain_openai.chat_models import ChatOpenAI
+import sys
+import os
+from pathlib import Path
+
+# Add the seq directory to the path to import predict.py
+sys.path.append(str(Path(__file__).parent / 'seq'))
+
+try:
+    from predict import predict_text_to_file
+    PREDICTION_AVAILABLE = True
+except ImportError as e:
+    PREDICTION_AVAILABLE = False
+    prediction_error = str(e)
 
 #def generate_response(input_text):
     #model = ChatOpenAI(temperature=0.7, api_key=openai_api_key)
@@ -51,8 +63,97 @@ st.header("1. Article Input")
 
 article, labels, user_folder, threshold, role_filter, hide_repeat = render_sidebar()
 
+# Allow users to edit the article text directly
+article = st.text_area("Article", value=article if article else "", height=300, 
+                      help="Paste or type your article text here. You can also load articles from the sidebar.")
 
-st.text_area("Article", article, height=300)
+# Debug info (can remove later)
+if article:
+    st.caption(f"📝 Article length: {len(article)} characters")
+
+# Add prediction functionality right after the text area
+if PREDICTION_AVAILABLE:
+    st.success("🤖 **Entity Prediction Model Loaded**: Run predictions on any article text.")
+    
+    # Always show buttons if prediction is available
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("🔍 Run Entity Predictions", help="Analyze entities in the current article", key="predict_main"):
+            if article and article.strip():
+                try:
+                    with st.spinner("Analyzing entities in your article..."):
+                        # Create output directory
+                        predictions_dir = "article_predictions"
+                        os.makedirs(predictions_dir, exist_ok=True)
+                        
+                        # Run prediction
+                        predictions, non_unknown_count = predict_text_to_file(
+                            text=article,
+                            output_filename="current_article_predictions.txt",
+                            output_dir=predictions_dir
+                        )
+                    
+                    st.success(f"✅ Entity analysis complete! Found {len(predictions)} entities ({non_unknown_count} with specific roles)")
+                    
+                    # Show detailed predictions
+                    if predictions:
+                        with st.expander("🎯 Detected Entities", expanded=True):
+                            for i, pred in enumerate(predictions):
+                                entity, start, end, role = pred.split('\t')
+                                # Color code by role
+                                if role == "Protagonist":
+                                    st.markdown(f"🟢 **{entity}** - {role} (position {start}-{end})")
+                                elif role == "Antagonist":
+                                    st.markdown(f"🔴 **{entity}** - {role} (position {start}-{end})")
+                                elif role == "Innocent":
+                                    st.markdown(f"🔵 **{entity}** - {role} (position {start}-{end})")
+                                else:
+                                    st.markdown(f"⚪ **{entity}** - {role} (position {start}-{end})")
+                    else:
+                        st.info("No entities detected in the article.")
+                        
+                except Exception as e:
+                    st.error(f"Error running entity prediction: {str(e)}")
+            else:
+                st.warning("⚠️ Please enter some article text first.")
+    
+    with col2:
+        if st.button("💾 Save Predictions to File", help="Save current predictions to txt_predictions folder", key="save_main"):
+            if article and article.strip() and user_folder:
+                try:
+                    with st.spinner("Saving predictions..."):
+                        # Create user-specific predictions directory
+                        predictions_dir = os.path.join('txt_predictions', user_folder)
+                        os.makedirs(predictions_dir, exist_ok=True)
+                        
+                        # Generate filename with timestamp
+                        import datetime
+                        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                        filename = f"home_analysis_{timestamp}_predictions.txt"
+                        
+                        # Run prediction and save
+                        predictions, non_unknown_count = predict_text_to_file(
+                            text=article,
+                            output_filename=filename,
+                            output_dir=predictions_dir
+                        )
+                    
+                    st.success(f"💾 Predictions saved to: txt_predictions/{user_folder}/{filename}")
+                    st.info(f"📊 Summary: {len(predictions)} entities found ({non_unknown_count} with specific roles)")
+                    
+                except Exception as e:
+                    st.error(f"Error saving predictions: {str(e)}")
+            elif not article or not article.strip():
+                st.warning("⚠️ Please enter some article text first.")
+            elif not user_folder:
+                st.warning("⚠️ Please select a user folder in the sidebar first.")
+            else:
+                st.warning("Entity prediction model is not available.")
+else:
+    st.warning(f"⚠️ **Entity Prediction Unavailable**: {prediction_error if 'prediction_error' in locals() else 'Model not loaded'}")
+
+st.markdown("---")
 
 if article and labels:
     show_annot   = st.checkbox("Show annotated article view", True)
@@ -60,7 +161,7 @@ if article and labels:
 
     # 2. Annotated article view
     if show_annot:
-        st.header("2. Annotated Article")
+        st.header("3. Annotated Article")
         html = reformat_text_html_with_tooltips(article, filter_labels_by_role(labels, role_filter), hide_repeat)
         st.components.v1.html(html, height=600, scrolling = True)     
 
@@ -69,7 +170,7 @@ if article and labels:
     if not df_f.empty:
         df_f = df_f[df_f['main_role'].isin(role_filter)]
 
-        st.header("3. Role Distribution & Transition Timeline")
+        st.header("4. Role Distribution & Transition Timeline")
         dist = df_f['main_role'].value_counts().reset_index()
         dist.columns = ['role','count']
         
@@ -133,7 +234,7 @@ if article and labels:
         st.altair_chart(pie, use_container_width=True)
 
     # --- Sentence Display by Role with Adaptive Layout ---
-    st.markdown("## 4. Sentences by Role Classification")
+    st.markdown("## 5. Sentences by Role Classification")
 
     df_f['main_role'] = df_f['main_role'].str.strip().str.title()
     df_f['fine_roles'] = df_f['fine_roles'].apply(lambda roles: [r.strip().title() for r in roles if r.strip()])
@@ -190,7 +291,7 @@ if article and labels:
 
     # Confidence Distribution
     #tweak details once confidence column uses real data
-    st.subheader("Histogram of Confidence Levels")
+    st.subheader("6. Histogram of Confidence Levels")
 
     chart = alt.Chart(df_f).mark_bar().encode(
         alt.X("confidence:Q", bin=alt.Bin(maxbins=20), title="Confidence"),
@@ -204,12 +305,12 @@ if article and labels:
     st.altair_chart(chart, use_container_width=True)
 
     # 4. Narrative classification
-    st.header("#. Narrative Classification")
+    st.header("7. Narrative Classification")
     df_n = predict_narrative_classification(article, threshold)
     st.dataframe(df_n)
 
     # 5. Free-form narrative extraction
-    st.header("#. Free-form Narrative Extraction")
+    st.header("8. Free-form Narrative Extraction")
     st.write(extract_narrative(article))
 
 

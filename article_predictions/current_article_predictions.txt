@@ -1,0 +1,7 @@
+Greta Thunberg	0	14	Antagonist
+Greta Thunberg	84	98	Antagonist
+Thunberg	195	203	Antagonist
+Thunberg	384	392	Antagonist
+Thunbergism	1690	1701	Antagonist
+Extinction Rebellion	2350	2370	Antagonist
+Extinction Rebellion	3294	3314	Antagonist
