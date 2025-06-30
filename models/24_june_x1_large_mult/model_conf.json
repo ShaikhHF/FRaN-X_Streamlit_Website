@@ -1,1 +1,3 @@
-{"model_checkpoint": "microsoft/deberta-v3-large", "label_names": ["O", "B-Antagonist", "I-Antagonist", "B-Protagonist", "I-Protagonist", "B-Innocent", "I-Innocent"], "id2label": {"0": "O", "1": "B-Antagonist", "2": "I-Antagonist", "3": "B-Protagonist", "4": "I-Protagonist", "5": "B-Innocent", "6": "I-Innocent"}, "label2id": {"O": 0, "B-Antagonist": 1, "I-Antagonist": 2, "B-Protagonist": 3, "I-Protagonist": 4, "B-Innocent": 5, "I-Innocent": 6}}
+version https://git-lfs.github.com/spec/v1
+oid sha256:6e26a2c54e969eedc4ac8ae4ca0b8c2400ae115183fa9e2207208c98a28f7704
+size 448
