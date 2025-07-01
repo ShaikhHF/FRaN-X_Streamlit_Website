@@ -1,9 +1,7 @@
-Zinchenko	0	9	Protagonist
-Russia	54	60	Antagonist
-Ukraine	69	76	Innocent
-Oleksandr Zinchenko	134	153	Protagonist
-Russia	188	194	Antagonist
-Ukraine	234	241	Innocent
-Vladimir Putin	393	407	Antagonist
-Ukraine	425	432	Innocent
-Zinchenko	513	522	Protagonist
+Зеленскому	0	10	Antagonist
+Владимиру Зеленскому	75	95	Antagonist
+Виктор Орбан	283	295	Protagonist
+Орбан	565	570	Protagonist
+Зеленский	587	596	Antagonist
+Будапешт	1007	1015	Protagonist
+Орбан	1083	1088	Protagonist

@@ -1,114 +1,68 @@
-text,entity_mention,start_offset,end_offset,p_main_role,context,predicted_roles,predicted_fine_margin,predicted_fine_with_scores
-"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
+text,entity_mention,start_offset,end_offset,p_main_role,context,predicted_fine_with_scores,predicted_fine_margin
+"Зеленскому не очень понравилась идея о временном прекращении огня - Орбан
 
- ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
+Владимиру Зеленскому, срок полномочий которого истек 20 мая, не очень понравилась идея временно прекратить огонь и в этот период разработать план урегулирования. Об этом 2 июля заявил премьер-министр Венгрии Виктор Орбан в интервью журналу Die Weltwoche. 
+Ранее в этот день он предложил украинскому лидеру рассмотреть возможность прекращения огня для начала переговоров с Россией.
+«Он сказал, что у него есть сомнения и что эта идея ему не особо нравится, но предложил подумать», — отметил Орбан.
+По его словам, Зеленский сказал ему, что в прошлом у него был отрицательный опыт с перемириями, которые он «интерпретировал как вредящие Украине». Говоря о пресс-конференции с украинским лидером, премьер Венгрии рассказал, что от нее были большие ожидания.
+«Журналисты не знали, чего ожидать, — публичной дискуссии и конфронтации между двумя лидерами или более кооперативного совместного заявления», — заявил политик.
+Он напомнил, что Будапешт хочет как можно скорее прекратить боевые действия и прийти к миру. Орбан добавил, что старается представлять интересы Европы справедливо и честно. Своей целью он назвал сделать доклад в Евросовете о возможности мирного урегулирования, пишет ""Известия"".",Зеленскому,0,10,Antagonist,"Зеленскому не очень понравилась идея о временном прекращении огня - Орбан
 
-The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
+Владимиру Зеленскому, срок полномочий которого истек 20 мая, не очень понравилась иде","{'Incompetent': 0.3396, 'Deceiver': 0.1347, 'Tyrant': 0.1267, 'Corrupt': 0.1006, 'Conspirator': 0.0755, 'Terrorist': 0.0732, 'Instigator': 0.0558, 'Saboteur': 0.04, 'Traitor': 0.03, 'Bigot': 0.0259, 'Foreign Adversary': 0.0133}",['Incompetent']
+"Зеленскому не очень понравилась идея о временном прекращении огня - Орбан
 
-Russian president Vladimir Putin sent troops into Ukraine in February 2022.
+Владимиру Зеленскому, срок полномочий которого истек 20 мая, не очень понравилась идея временно прекратить огонь и в этот период разработать план урегулирования. Об этом 2 июля заявил премьер-министр Венгрии Виктор Орбан в интервью журналу Die Weltwoche. 
+Ранее в этот день он предложил украинскому лидеру рассмотреть возможность прекращения огня для начала переговоров с Россией.
+«Он сказал, что у него есть сомнения и что эта идея ему не особо нравится, но предложил подумать», — отметил Орбан.
+По его словам, Зеленский сказал ему, что в прошлом у него был отрицательный опыт с перемириями, которые он «интерпретировал как вредящие Украине». Говоря о пресс-конференции с украинским лидером, премьер Венгрии рассказал, что от нее были большие ожидания.
+«Журналисты не знали, чего ожидать, — публичной дискуссии и конфронтации между двумя лидерами или более кооперативного совместного заявления», — заявил политик.
+Он напомнил, что Будапешт хочет как можно скорее прекратить боевые действия и прийти к миру. Орбан добавил, что старается представлять интересы Европы справедливо и честно. Своей целью он назвал сделать доклад в Евросовете о возможности мирного урегулирования, пишет ""Известия"".",Владимиру Зеленскому,75,95,Antagonist,"Зеленскому не очень понравилась идея о временном прекращении огня - Орбан
 
-Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Zinchenko,0,9,Protagonist,"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
+Владимиру Зеленскому, срок полномочий которого истек 20 мая, не очень понравилась идея временно прекратить огонь и в этот период разработать план урегулирования. Об этом","{'Tyrant': 0.2882, 'Incompetent': 0.2676, 'Instigator': 0.2296, 'Foreign Adversary': 0.0566, 'Deceiver': 0.0566, 'Terrorist': 0.0507, 'Conspirator': 0.0478, 'Corrupt': 0.0321, 'Saboteur': 0.0289, 'Traitor': 0.015}","['Tyrant', 'Incompetent']"
+"Зеленскому не очень понравилась идея о временном прекращении огня - Орбан
 
- ARSENAL star Oleksandr Zinchenko has r","{'Underdog': 0.5759, 'Rebel': 0.3681, 'Martyr': 0.1601, 'Virtuous': 0.0755, 'Peacemaker': 0.0627, 'Exploited': 0.0198, 'Guardian': 0.0127, 'Forgotten': 0.0126, 'Scapegoat': 0.0125, 'Foreign Adversary': 0.0111, 'Victim': 0.011, 'Conspirator': 0.0106}",['Underdog'],{'Underdog': 0.5759}
-"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
+Владимиру Зеленскому, срок полномочий которого истек 20 мая, не очень понравилась идея временно прекратить огонь и в этот период разработать план урегулирования. Об этом 2 июля заявил премьер-министр Венгрии Виктор Орбан в интервью журналу Die Weltwoche. 
+Ранее в этот день он предложил украинскому лидеру рассмотреть возможность прекращения огня для начала переговоров с Россией.
+«Он сказал, что у него есть сомнения и что эта идея ему не особо нравится, но предложил подумать», — отметил Орбан.
+По его словам, Зеленский сказал ему, что в прошлом у него был отрицательный опыт с перемириями, которые он «интерпретировал как вредящие Украине». Говоря о пресс-конференции с украинским лидером, премьер Венгрии рассказал, что от нее были большие ожидания.
+«Журналисты не знали, чего ожидать, — публичной дискуссии и конфронтации между двумя лидерами или более кооперативного совместного заявления», — заявил политик.
+Он напомнил, что Будапешт хочет как можно скорее прекратить боевые действия и прийти к миру. Орбан добавил, что старается представлять интересы Европы справедливо и честно. Своей целью он назвал сделать доклад в Евросовете о возможности мирного урегулирования, пишет ""Известия"".",Виктор Орбан,283,295,Protagonist,"я, не очень понравилась идея временно прекратить огонь и в этот период разработать план урегулирования. Об этом 2 июля заявил премьер-министр Венгрии Виктор Орбан в интервью журналу Die Weltwoche. 
+Ранее в этот день он предложил украинскому лидеру рассмотреть возможность прекращения огня для начала переговоров","{'Peacemaker': 0.9124, 'Virtuous': 0.0228, 'Guardian': 0.017}",['Peacemaker']
+"Зеленскому не очень понравилась идея о временном прекращении огня - Орбан
 
- ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
+Владимиру Зеленскому, срок полномочий которого истек 20 мая, не очень понравилась идея временно прекратить огонь и в этот период разработать план урегулирования. Об этом 2 июля заявил премьер-министр Венгрии Виктор Орбан в интервью журналу Die Weltwoche. 
+Ранее в этот день он предложил украинскому лидеру рассмотреть возможность прекращения огня для начала переговоров с Россией.
+«Он сказал, что у него есть сомнения и что эта идея ему не особо нравится, но предложил подумать», — отметил Орбан.
+По его словам, Зеленский сказал ему, что в прошлом у него был отрицательный опыт с перемириями, которые он «интерпретировал как вредящие Украине». Говоря о пресс-конференции с украинским лидером, премьер Венгрии рассказал, что от нее были большие ожидания.
+«Журналисты не знали, чего ожидать, — публичной дискуссии и конфронтации между двумя лидерами или более кооперативного совместного заявления», — заявил политик.
+Он напомнил, что Будапешт хочет как можно скорее прекратить боевые действия и прийти к миру. Орбан добавил, что старается представлять интересы Европы справедливо и честно. Своей целью он назвал сделать доклад в Евросовете о возможности мирного урегулирования, пишет ""Известия"".",Орбан,565,570,Protagonist,"я огня для начала переговоров с Россией.
+«Он сказал, что у него есть сомнения и что эта идея ему не особо нравится, но предложил подумать», — отметил Орбан.
+По его словам, Зеленский сказал ему, что в прошлом у него был отрицательный опыт с перемириями, которые он «интерпретировал как вредящие Украине». Г","{'Peacemaker': 0.912, 'Virtuous': 0.0865, 'Guardian': 0.0259}",['Peacemaker']
+"Зеленскому не очень понравилась идея о временном прекращении огня - Орбан
 
-The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
+Владимиру Зеленскому, срок полномочий которого истек 20 мая, не очень понравилась идея временно прекратить огонь и в этот период разработать план урегулирования. Об этом 2 июля заявил премьер-министр Венгрии Виктор Орбан в интервью журналу Die Weltwoche. 
+Ранее в этот день он предложил украинскому лидеру рассмотреть возможность прекращения огня для начала переговоров с Россией.
+«Он сказал, что у него есть сомнения и что эта идея ему не особо нравится, но предложил подумать», — отметил Орбан.
+По его словам, Зеленский сказал ему, что в прошлом у него был отрицательный опыт с перемириями, которые он «интерпретировал как вредящие Украине». Говоря о пресс-конференции с украинским лидером, премьер Венгрии рассказал, что от нее были большие ожидания.
+«Журналисты не знали, чего ожидать, — публичной дискуссии и конфронтации между двумя лидерами или более кооперативного совместного заявления», — заявил политик.
+Он напомнил, что Будапешт хочет как можно скорее прекратить боевые действия и прийти к миру. Орбан добавил, что старается представлять интересы Европы справедливо и честно. Своей целью он назвал сделать доклад в Евросовете о возможности мирного урегулирования, пишет ""Известия"".",Зеленский,587,596,Antagonist,"говоров с Россией.
+«Он сказал, что у него есть сомнения и что эта идея ему не особо нравится, но предложил подумать», — отметил Орбан.
+По его словам, Зеленский сказал ему, что в прошлом у него был отрицательный опыт с перемириями, которые он «интерпретировал как вредящие Украине». Говоря о пресс-конференции","{'Incompetent': 0.3269, 'Deceiver': 0.1801, 'Corrupt': 0.133, 'Conspirator': 0.0988, 'Tyrant': 0.0956, 'Terrorist': 0.0467, 'Saboteur': 0.0419, 'Instigator': 0.0363, 'Bigot': 0.0358, 'Traitor': 0.0315, 'Foreign Adversary': 0.0121, 'Spy': 0.0109}",['Incompetent']
+"Зеленскому не очень понравилась идея о временном прекращении огня - Орбан
 
-Russian president Vladimir Putin sent troops into Ukraine in February 2022.
+Владимиру Зеленскому, срок полномочий которого истек 20 мая, не очень понравилась идея временно прекратить огонь и в этот период разработать план урегулирования. Об этом 2 июля заявил премьер-министр Венгрии Виктор Орбан в интервью журналу Die Weltwoche. 
+Ранее в этот день он предложил украинскому лидеру рассмотреть возможность прекращения огня для начала переговоров с Россией.
+«Он сказал, что у него есть сомнения и что эта идея ему не особо нравится, но предложил подумать», — отметил Орбан.
+По его словам, Зеленский сказал ему, что в прошлом у него был отрицательный опыт с перемириями, которые он «интерпретировал как вредящие Украине». Говоря о пресс-конференции с украинским лидером, премьер Венгрии рассказал, что от нее были большие ожидания.
+«Журналисты не знали, чего ожидать, — публичной дискуссии и конфронтации между двумя лидерами или более кооперативного совместного заявления», — заявил политик.
+Он напомнил, что Будапешт хочет как можно скорее прекратить боевые действия и прийти к миру. Орбан добавил, что старается представлять интересы Европы справедливо и честно. Своей целью он назвал сделать доклад в Евросовете о возможности мирного урегулирования, пишет ""Известия"".",Будапешт,1007,1015,Protagonist,"жидать, — публичной дискуссии и конфронтации между двумя лидерами или более кооперативного совместного заявления», — заявил политик.
+Он напомнил, что Будапешт хочет как можно скорее прекратить боевые действия и прийти к миру. Орбан добавил, что старается представлять интересы Европы справедливо и честно. Св","{'Peacemaker': 0.931, 'Virtuous': 0.0327, 'Rebel': 0.0144, 'Guardian': 0.0134, 'Underdog': 0.0112}",['Peacemaker']
+"Зеленскому не очень понравилась идея о временном прекращении огня - Орбан
 
-Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Russia,54,60,Antagonist,"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
-
- ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invas","{'Foreign Adversary': 0.796, 'Instigator': 0.4204, 'Tyrant': 0.07, 'Conspirator': 0.0269, 'Incompetent': 0.017}",['Foreign Adversary'],{'Foreign Adversary': 0.796}
-"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
-
- ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
-
-The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
-
-Russian president Vladimir Putin sent troops into Ukraine in February 2022.
-
-Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Ukraine,69,76,Innocent,"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
-
- ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home","{'Victim': 0.9879, 'Exploited': 0.0147}",['Victim'],{'Victim': 0.9879}
-"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
-
- ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
-
-The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
-
-Russian president Vladimir Putin sent troops into Ukraine in February 2022.
-
-Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Oleksandr Zinchenko,134,153,Protagonist,"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
-
- ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
-
-The Gunners full-back has spoken passionately in the past a","{'Underdog': 0.4685, 'Rebel': 0.3292, 'Virtuous': 0.0803, 'Martyr': 0.0724, 'Peacemaker': 0.0339, 'Guardian': 0.0305}",['Underdog'],{'Underdog': 0.4685}
-"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
-
- ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
-
-The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
-
-Russian president Vladimir Putin sent troops into Ukraine in February 2022.
-
-Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Russia,188,194,Antagonist,"wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
-
- ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
-
-The Gunners full-back has spoken passionately in the past about the war and the toll it has had on h","{'Foreign Adversary': 0.9373, 'Instigator': 0.1541, 'Tyrant': 0.0277}",['Foreign Adversary'],{'Foreign Adversary': 0.9373}
-"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
-
- ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
-
-The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
-
-Russian president Vladimir Putin sent troops into Ukraine in February 2022.
-
-Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Ukraine,234,241,Innocent,"nal star says he WOULD join fight 
-
- ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
-
-The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
-
-Russian presiden","{'Victim': 0.9882, 'Exploited': 0.0197}",['Victim'],{'Victim': 0.9882}
-"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
-
- ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
-
-The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
-
-Russian president Vladimir Putin sent troops into Ukraine in February 2022.
-
-Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Vladimir Putin,393,407,Antagonist,"The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
-
-Russian president Vladimir Putin sent troops into Ukraine in February 2022.
-
-Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of h","{'Instigator': 0.5037, 'Foreign Adversary': 0.3948, 'Tyrant': 0.1516, 'Incompetent': 0.0315, 'Conspirator': 0.0237, 'Terrorist': 0.0218, 'Saboteur': 0.0122}",['Instigator'],{'Instigator': 0.5037}
-"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
-
- ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
-
-The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
-
-Russian president Vladimir Putin sent troops into Ukraine in February 2022.
-
-Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Ukraine,425,432,Innocent,"n passionately in the past about the war and the toll it has had on him and his nation as a whole.
-
-Russian president Vladimir Putin sent troops into Ukraine in February 2022.
-
-Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.","{'Victim': 0.9877, 'Exploited': 0.0147}",['Victim'],{'Victim': 0.9877}
-"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
-
- ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
-
-The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
-
-Russian president Vladimir Putin sent troops into Ukraine in February 2022.
-
-Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Zinchenko,513,522,Protagonist,"s a whole.
-
-Russian president Vladimir Putin sent troops into Ukraine in February 2022.
-
-Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.","{'Rebel': 0.461, 'Underdog': 0.3019, 'Virtuous': 0.1708, 'Martyr': 0.1522, 'Peacemaker': 0.0689, 'Guardian': 0.0232}",['Rebel'],{'Rebel': 0.461}
+Владимиру Зеленскому, срок полномочий которого истек 20 мая, не очень понравилась идея временно прекратить огонь и в этот период разработать план урегулирования. Об этом 2 июля заявил премьер-министр Венгрии Виктор Орбан в интервью журналу Die Weltwoche. 
+Ранее в этот день он предложил украинскому лидеру рассмотреть возможность прекращения огня для начала переговоров с Россией.
+«Он сказал, что у него есть сомнения и что эта идея ему не особо нравится, но предложил подумать», — отметил Орбан.
+По его словам, Зеленский сказал ему, что в прошлом у него был отрицательный опыт с перемириями, которые он «интерпретировал как вредящие Украине». Говоря о пресс-конференции с украинским лидером, премьер Венгрии рассказал, что от нее были большие ожидания.
+«Журналисты не знали, чего ожидать, — публичной дискуссии и конфронтации между двумя лидерами или более кооперативного совместного заявления», — заявил политик.
+Он напомнил, что Будапешт хочет как можно скорее прекратить боевые действия и прийти к миру. Орбан добавил, что старается представлять интересы Европы справедливо и честно. Своей целью он назвал сделать доклад в Евросовете о возможности мирного урегулирования, пишет ""Известия"".",Орбан,1083,1088,Protagonist,"кооперативного совместного заявления», — заявил политик.
+Он напомнил, что Будапешт хочет как можно скорее прекратить боевые действия и прийти к миру. Орбан добавил, что старается представлять интересы Европы справедливо и честно. Своей целью он назвал сделать доклад в Евросовете о возможности мирного уре","{'Peacemaker': 0.936, 'Virtuous': 0.0573, 'Guardian': 0.0212}",['Peacemaker']
