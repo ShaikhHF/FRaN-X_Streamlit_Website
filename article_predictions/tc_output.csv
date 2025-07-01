@@ -1,0 +1,114 @@
+text,entity_mention,start_offset,end_offset,p_main_role,context,predicted_roles,predicted_fine_margin,predicted_fine_with_scores
+"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
+
+ ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
+
+The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
+
+Russian president Vladimir Putin sent troops into Ukraine in February 2022.
+
+Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Zinchenko,0,9,Protagonist,"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
+
+ ARSENAL star Oleksandr Zinchenko has r","{'Underdog': 0.5759, 'Rebel': 0.3681, 'Martyr': 0.1601, 'Virtuous': 0.0755, 'Peacemaker': 0.0627, 'Exploited': 0.0198, 'Guardian': 0.0127, 'Forgotten': 0.0126, 'Scapegoat': 0.0125, 'Foreign Adversary': 0.0111, 'Victim': 0.011, 'Conspirator': 0.0106}",['Underdog'],{'Underdog': 0.5759}
+"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
+
+ ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
+
+The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
+
+Russian president Vladimir Putin sent troops into Ukraine in February 2022.
+
+Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Russia,54,60,Antagonist,"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
+
+ ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invas","{'Foreign Adversary': 0.796, 'Instigator': 0.4204, 'Tyrant': 0.07, 'Conspirator': 0.0269, 'Incompetent': 0.017}",['Foreign Adversary'],{'Foreign Adversary': 0.796}
+"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
+
+ ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
+
+The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
+
+Russian president Vladimir Putin sent troops into Ukraine in February 2022.
+
+Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Ukraine,69,76,Innocent,"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
+
+ ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home","{'Victim': 0.9879, 'Exploited': 0.0147}",['Victim'],{'Victim': 0.9879}
+"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
+
+ ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
+
+The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
+
+Russian president Vladimir Putin sent troops into Ukraine in February 2022.
+
+Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Oleksandr Zinchenko,134,153,Protagonist,"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
+
+ ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
+
+The Gunners full-back has spoken passionately in the past a","{'Underdog': 0.4685, 'Rebel': 0.3292, 'Virtuous': 0.0803, 'Martyr': 0.0724, 'Peacemaker': 0.0339, 'Guardian': 0.0305}",['Underdog'],{'Underdog': 0.4685}
+"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
+
+ ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
+
+The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
+
+Russian president Vladimir Putin sent troops into Ukraine in February 2022.
+
+Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Russia,188,194,Antagonist,"wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
+
+ ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
+
+The Gunners full-back has spoken passionately in the past about the war and the toll it has had on h","{'Foreign Adversary': 0.9373, 'Instigator': 0.1541, 'Tyrant': 0.0277}",['Foreign Adversary'],{'Foreign Adversary': 0.9373}
+"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
+
+ ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
+
+The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
+
+Russian president Vladimir Putin sent troops into Ukraine in February 2022.
+
+Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Ukraine,234,241,Innocent,"nal star says he WOULD join fight 
+
+ ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
+
+The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
+
+Russian presiden","{'Victim': 0.9882, 'Exploited': 0.0197}",['Victim'],{'Victim': 0.9882}
+"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
+
+ ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
+
+The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
+
+Russian president Vladimir Putin sent troops into Ukraine in February 2022.
+
+Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Vladimir Putin,393,407,Antagonist,"The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
+
+Russian president Vladimir Putin sent troops into Ukraine in February 2022.
+
+Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of h","{'Instigator': 0.5037, 'Foreign Adversary': 0.3948, 'Tyrant': 0.1516, 'Incompetent': 0.0315, 'Conspirator': 0.0237, 'Terrorist': 0.0218, 'Saboteur': 0.0122}",['Instigator'],{'Instigator': 0.5037}
+"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
+
+ ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
+
+The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
+
+Russian president Vladimir Putin sent troops into Ukraine in February 2022.
+
+Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Ukraine,425,432,Innocent,"n passionately in the past about the war and the toll it has had on him and his nation as a whole.
+
+Russian president Vladimir Putin sent troops into Ukraine in February 2022.
+
+Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.","{'Victim': 0.9877, 'Exploited': 0.0147}",['Victim'],{'Victim': 0.9877}
+"Zinchenko recalls heartbreaking moment wife sobbed as Russia invaded Ukraine as Arsenal star says he WOULD join fight 
+
+ ARSENAL star Oleksandr Zinchenko has recalled the harrowing moment Russia began the invasion of his home country Ukraine.
+
+The Gunners full-back has spoken passionately in the past about the war and the toll it has had on him and his nation as a whole.
+
+Russian president Vladimir Putin sent troops into Ukraine in February 2022.
+
+Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.",Zinchenko,513,522,Protagonist,"s a whole.
+
+Russian president Vladimir Putin sent troops into Ukraine in February 2022.
+
+Now, nearly 18 months on from the beginning of the conflict, Zinchenko has spoken about his memories of how it started.","{'Rebel': 0.461, 'Underdog': 0.3019, 'Virtuous': 0.1708, 'Martyr': 0.1522, 'Peacemaker': 0.0689, 'Guardian': 0.0232}",['Rebel'],{'Rebel': 0.461}

@@ -9,6 +9,8 @@ import streamlit as st
 import sys
 import os
 from pathlib import Path
+from mode_tc_utils.preprocessing import convert_prediction_txt_to_csv
+from mode_tc_utils.tc_inference import run_role_inference
 
 # Add the seq directory to the path to import predict.py
 sys.path.append(str(Path(__file__).parent / 'seq'))
@@ -93,6 +95,20 @@ if PREDICTION_AVAILABLE:
                             output_filename="current_article_predictions.txt",
                             output_dir=predictions_dir
                         )
+                        # convert txt output of stage 1 into csv and prepare for text classification model 2
+                        # also extracts context
+                        stage2_csv_path = os.path.join(predictions_dir, "tc_input.csv")
+                        convert_prediction_txt_to_csv(article,
+                            prediction_file=os.path.join(predictions_dir, "current_article_predictions.txt"),
+                            article_text=article,
+                            output_csv=stage2_csv_path
+                            )
+                        
+                        stage2_df = pd.read_csv("article_predictions/tc_input.csv")
+                        stage2_df = run_role_inference(stage2_df)
+
+                        output_path = os.path.join(predictions_dir, "tc_output.csv")
+                        stage2_df.to_csv(output_path, index=False)
                     
                     st.success(f"✅ Entity analysis complete! Found {len(predictions)} entities ({non_unknown_count} with specific roles)")
                     
@@ -110,8 +126,41 @@ if PREDICTION_AVAILABLE:
                                     st.markdown(f"🔵 **{entity}** - {role} (position {start}-{end})")
                                 else:
                                     st.markdown(f"⚪ **{entity}** - {role} (position {start}-{end})")
+
                     else:
                         st.info("No entities detected in the article.")
+
+                    if not stage2_df.empty:
+                        with st.expander("🧠 Fine-Grained Role Predictions", expanded=True):
+                            for _, row in stage2_df.iterrows():
+                                entity = row.get("entity_mention", "N/A")
+                                main_role = row.get("p_main_role", "N/A")
+
+                                # Parse list of fine roles and their scores
+                                fine_roles = row.get("predicted_fine_margin", [])
+                                fine_scores = row.get("predicted_fine_with_scores", {})
+
+                                if isinstance(fine_roles, str):
+                                    try:
+                                        fine_roles = ast.literal_eval(fine_roles)
+                                    except:
+                                        fine_roles = []
+
+                                if isinstance(fine_scores, str):
+                                    try:
+                                        fine_scores = ast.literal_eval(fine_scores)
+                                    except:
+                                        fine_scores = {}
+
+                                # Format role + score for display
+                                formatted_roles = ", ".join(
+                                f"{role}: confidence = ({fine_scores.get(role, '—')})" for role in fine_roles
+                                    ) if fine_roles else "None"
+
+
+                                st.markdown(f"**{entity}** ({main_role}): _{formatted_roles}_")
+
+
                         
                 except Exception as e:
                     st.error(f"Error running entity prediction: {str(e)}")

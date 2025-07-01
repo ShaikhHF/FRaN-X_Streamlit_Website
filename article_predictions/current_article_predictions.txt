@@ -1,7 +1,9 @@
-Greta Thunberg	0	14	Antagonist
-Greta Thunberg	84	98	Antagonist
-Thunberg	195	203	Antagonist
-Thunberg	384	392	Antagonist
-Thunbergism	1690	1701	Antagonist
-Extinction Rebellion	2350	2370	Antagonist
-Extinction Rebellion	3294	3314	Antagonist
+Zinchenko	0	9	Protagonist
+Russia	54	60	Antagonist
+Ukraine	69	76	Innocent
+Oleksandr Zinchenko	134	153	Protagonist
+Russia	188	194	Antagonist
+Ukraine	234	241	Innocent
+Vladimir Putin	393	407	Antagonist
+Ukraine	425	432	Innocent
+Zinchenko	513	522	Protagonist
