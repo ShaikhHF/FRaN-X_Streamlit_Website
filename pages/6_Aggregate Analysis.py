@@ -40,7 +40,11 @@ network_rows = []
 
 for f in files:
     article_text = load_article(f'{folder_path}/{f}').strip()
-    labels = load_labels('split_data' if user_folder == None else 'user_articles', f, threshold)
+    labels = load_labels(
+        #'split_data' if user_folder == None else 'user_articles', 
+        'annotated',
+        f, 
+        threshold)
     df_network = predict_entity_framing(labels, threshold)
     df_network = df_network[df_network['main_role'].isin(role_filter)]
     df_network = df_network.explode("fine_roles")

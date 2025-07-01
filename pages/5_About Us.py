@@ -1,5 +1,5 @@
 import streamlit as st
-
+from load_annotations import load_labels, load_labels_old
 
 role_descriptions = {
     "Protagonist": {
@@ -63,6 +63,13 @@ for main_role, sub_roles in role_descriptions.items():
         for sub_role, description in sub_roles.items():
             st.markdown(f"**• {sub_role}**: {description}")
 
+
+#CHECKING CHANGE IN CSV FILE 
+#labels = load_labels_old("split_data", "EN_UA_DEV_213.txt", 0.1)
+#st.write(labels)
+#st.write("break up labels")
+#labels = load_labels("annotated","EN_UA_DEV_213.txt", 0.0)
+#st.write(labels)
 
 
 st.divider()

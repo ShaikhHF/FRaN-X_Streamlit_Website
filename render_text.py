@@ -28,7 +28,7 @@ def normalize_entities(graph_df, threshold=90):
         "the united states": "United States",
         "putin": "Vladimir Putin",
         "v putin": "Vladimir Putin",
-        "west": "the west"
+        "west": "the west",
     }
 
     graph_df = graph_df.copy()  # Avoid modifying the original DataFrame
@@ -62,6 +62,8 @@ def reformat_text_html_with_tooltips(text, labels_dict, hide_repeat=False, highl
     spans = []
     entity_history = defaultdict(set)
 
+    #st.write(labels_dict.items())
+
     # Collect spans
     for entity, mentions in labels_dict.items():
         if not isinstance(mentions, list):
@@ -81,8 +83,8 @@ def reformat_text_html_with_tooltips(text, labels_dict, hide_repeat=False, highl
 
             main_role = mention.get("main_role", "")
             color = ROLE_COLORS.get(main_role, "#000000")
-            fine_roles_set = frozenset(r.strip().title() for r in mention.get("fine_roles", []))
-            fine_roles_str = ", ".join(fine_roles_set)
+            fine_roles, confidence = (mention.get("fine_roles", []))
+            fine_roles_set = frozenset(mention.get("fine_roles", []))
 
             is_repeated = fine_roles_set in entity_history[entity]
             adjusted_color = color
@@ -91,8 +93,8 @@ def reformat_text_html_with_tooltips(text, labels_dict, hide_repeat=False, highl
 
             tooltip = (
                 f"Role: {main_role or 'Unknown'}<br>"
-                f"Confidence: {mention.get('confidence', 'N/A')}<br>"
-                f"Fine roles: {fine_roles_str}"
+                f"Confidence: {confidence}<br>"
+                f"Fine roles: {fine_roles}"
             )
 
             entity_text = text[start:end].strip() or entity
@@ -114,7 +116,7 @@ def reformat_text_html_with_tooltips(text, labels_dict, hide_repeat=False, highl
                         f'<span class="entity" '
                         f'style="background-color:{adjusted_color}; padding:3px 6px; border-radius:4px;" '
                         f'data-tooltip="{tooltip}">'
-                        f'{entity_text} | <span style="font-size: smaller;">{fine_roles_str}</span></span>'
+                        f'{entity_text} | <span style="font-size: smaller;">{fine_roles}</span></span>'
                     )
                 })
 
@@ -203,32 +205,42 @@ def reformat_text_html_with_tooltips(text, labels_dict, hide_repeat=False, highl
 def predict_entity_framing(labels, threshold: float = 0.0):
     records = []
 
+    #st.write(labels)
+
     for entity, mentions in labels.items():
         for mention in mentions:
-            if mention['confidence'] >= threshold:
+            fine_roles = mention.get("fine_roles", {})
+
+            fine_roles, confidence = (mention.get("fine_roles", []))
+
+            if confidence >= 0.0:
                 records.append({
                     'entity': entity,
                     'main_role': mention['main_role'],
-                    'fine_roles': mention['fine_roles'],
-                    'confidence': mention['confidence'],
+                    'fine_roles': fine_roles,
+                    'confidence': confidence,
                     'start': mention['start_offset'],
                     'end': mention['end_offset'],
-                    'sentence':mention['sentence']
+                    'sentence': mention['sentence']
                 })
+           
 
-    # Ensure there is at least one record to avoid breaking downstream code
+    # Ensure there is at least one record
     if not records:
         records.append({
             'entity': 'abcdef',
             'main_role': 'innocent',
-            'fine_roles': ['forgotten'],
-            'confidence': 0.0,
+            'fine_roles': 'forgotten',
+            'confidence': 1.0,
             'start': 0,
             'end': 0,
-            'sentence':'abcdef'
+            'sentence': 'abcdef'
         })
 
-    return pd.DataFrame(records)
+    df = pd.DataFrame(records)
+    #st.write(df)
+    return df
+
 
 
 def format_sentence_with_spans(sentence_text, labels, threshold, hide_repeat=True, show_fine_roles=False, seen_fine_roles=None):
@@ -259,9 +271,8 @@ def format_sentence_with_spans(sentence_text, labels, threshold, hide_repeat=Tru
             main_role = mention.get('main_role', '')
             base_color = ROLE_COLORS.get(main_role, "#000000")
 
-            fine_roles_raw = mention.get('fine_roles', [])
-            fine_roles_set = frozenset(r.strip().title() for r in fine_roles_raw)
-            fine_roles_str = ", ".join(fine_roles_set)
+            fine_roles, _ = (mention.get("fine_roles", []))
+            fine_roles_set = frozenset(mention.get("fine_roles", []))
 
             is_repeated = fine_roles_set in seen_fine_roles[entity_key]
             seen_fine_roles[entity_key].add(fine_roles_set)
@@ -277,7 +288,7 @@ def format_sentence_with_spans(sentence_text, labels, threshold, hide_repeat=Tru
             mention_display = html_utils.escape(sentence_text[match_start:match_end])
 
             if show_fine_roles:
-                fine_roles_html = f' | <span style="font-size:smaller; opacity:0.75;">{fine_roles_str}</span>'
+                fine_roles_html = f' | <span style="font-size:smaller; opacity:0.75;">{fine_roles}</span>'
             else:
                 fine_roles_html = ""
 

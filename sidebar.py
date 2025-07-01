@@ -1,6 +1,6 @@
 import streamlit as st
 import os
-from load_annotations import load_article, load_labels
+from load_annotations import load_article, load_labels, load_labels_old
 #from streamlit_theme import st_theme
 
 ROLE_COLORS = {
@@ -110,11 +110,19 @@ def render_sidebar(choose_user_folder = True, check_example = True, new_session 
             if selected_file != "Select a file":
                 file_path = os.path.join(folder_path, selected_file)
                 article = load_article(file_path)
-                labels = load_labels(
-                    'split_data' if use_example else 'user_articles',
-                    selected_file,
-                    threshold
-                )
+                
+                #labels = load_labels(
+                #    #'split_data' if use_example else 'user_articles',
+                #    selected_file,
+                #    threshold
+                #)
+
+                labels = load_labels("annotated", selected_file, 0.1)
+
+                #st.write("sidebar.py")
+                #st.write(labels)
+
+
             elif not valid_files:
                 st.sidebar.warning("⚠️ No files found in the selected folder.")
 

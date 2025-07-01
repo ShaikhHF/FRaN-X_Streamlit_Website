@@ -6,6 +6,7 @@ from sidebar import render_sidebar, ROLE_COLORS
 from render_text import reformat_text_html_with_tooltips, predict_entity_framing, format_sentence_with_spans
 from streamlit.components.v1 import html as st_html
 import streamlit as st
+
 #from langchain_openai.chat_models import ChatOpenAI
 
 #def generate_response(input_text):
@@ -50,13 +51,12 @@ st.title("FRaN-X: Entity Framing & Narrative Analysis")
 st.header("1. Article Input")
 
 article, labels, user_folder, threshold, role_filter, hide_repeat = render_sidebar()
-
-
 st.text_area("Article", article, height=300)
 
 if article and labels:
-    show_annot   = st.checkbox("Show annotated article view", True)
+    show_annot = st.checkbox("Show annotated article view", True)
     df_f = predict_entity_framing(labels, threshold)
+
 
     # 2. Annotated article view
     if show_annot:
@@ -99,7 +99,7 @@ if article and labels:
             fontSize=11
         ).encode(
             x='main_role:N',
-            y=alt.Y('entities:Q'),  # <- exact center of the segment
+            y=alt.Y('entities:Q'),
             text='fine_roles:N'
         )
 
@@ -110,6 +110,9 @@ if article and labels:
         )
 
         st.altair_chart(chart, use_container_width=True)
+
+
+
 
         #timeline
         timeline = alt.Chart(df_f).mark_bar().encode(
@@ -135,8 +138,12 @@ if article and labels:
     # --- Sentence Display by Role with Adaptive Layout ---
     st.markdown("## 4. Sentences by Role Classification")
 
-    df_f['main_role'] = df_f['main_role'].str.strip().str.title()
-    df_f['fine_roles'] = df_f['fine_roles'].apply(lambda roles: [r.strip().title() for r in roles if r.strip()])
+    #df_f['main_role'] = df_f['main_role'].str.strip().str.title()
+    #st.write(df_f)
+    #df_f['fine_roles'] = df_f['fine_roles'].apply(lambda roles: [r.strip().title() for r in roles if r.strip()])
+    
+    
+
     df_f = df_f[df_f['main_role'].isin(ROLE_COLORS)]
 
     main_roles = sorted(df_f['main_role'].unique())
@@ -149,8 +156,14 @@ if article and labels:
         col = role_cols[idx // cols_per_row][idx % cols_per_row]
 
         with col:
-            role_df = df_f[df_f['main_role'] == role][['sentence', 'fine_roles']].copy()
-            role_df['fine_roles'] = role_df['fine_roles'].apply(tuple)
+            role_df = df_f[df_f['main_role'] == role][['sentence', 'fine_roles', 'confidence']].copy()
+
+            #st.write(df_f)
+            #st.write(role_df)
+            #role_df['fine_roles'] = role_df['fine_roles'].apply(tuple)
+
+            #st.write(role_df)
+
             role_sentences = role_df.drop_duplicates()
 
             st.markdown(
@@ -183,7 +196,7 @@ if article and labels:
                     seen_fine_roles = None
                     for s in fine_sents:
                         html_block,seen_fine_roles = format_sentence_with_spans(s, filter_labels_by_role(labels, role_filter), threshold, hide_repeat, True, seen_fine_roles)
-                        st_html(html_block, height=80, scrolling=False)
+                        st_html(html_block, height=100, scrolling=True)
             else: 
                 for fine_role in fine_roles:
                     st.write(f"All annotations of this main role are of type: {fine_role}")
@@ -204,13 +217,13 @@ if article and labels:
     st.altair_chart(chart, use_container_width=True)
 
     # 4. Narrative classification
-    st.header("#. Narrative Classification")
-    df_n = predict_narrative_classification(article, threshold)
-    st.dataframe(df_n)
+    #st.header("#. Narrative Classification")
+    #df_n = predict_narrative_classification(article, threshold)
+    #st.dataframe(df_n)
 
     # 5. Free-form narrative extraction
-    st.header("#. Free-form Narrative Extraction")
-    st.write(extract_narrative(article))
+    #st.header("#. Free-form Narrative Extraction")
+    #st.write(extract_narrative(article))
 
 
     # 6. Bias identification & rewriting

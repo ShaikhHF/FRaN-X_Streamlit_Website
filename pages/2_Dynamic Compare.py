@@ -37,7 +37,7 @@ def generate_shades(base_hex, n):
 st.set_page_config(page_title="FRaN-X", layout="wide")
 
 # Sidebar
-article, labels, user_folder, threshold, role_filter, hide_repeat = render_sidebar(False)
+_, _, _, threshold, role_filter, hide_repeat = render_sidebar(False)
 
 # Title Row with Dynamic Column Buttons
 title_col, spacer, add_col, remove_col = st.columns([3, 5, 1, 1])
@@ -59,7 +59,8 @@ column_count = st.session_state.get("column_count", 1)
 use_example = st.session_state.get("use_example", False)
 threshold = st.session_state.get("threshold", 0.5)
 article_folder = 'chunk_data' if use_example else 'user_articles'
-label_folder = 'split_data' if use_example else 'user_labels'
+#label_folder = 'split_data' if use_example else 'user_labels'
+label_folder = 'annotated'
 
 file_names = [f for f in load_file_names(article_folder) if f and not f.startswith('.')]
 file_options = ["Select a file"] + file_names
@@ -77,7 +78,6 @@ for i, col in enumerate(columns):
         if selected_file != "Select a file":
             article_text = load_article(f"{article_folder}/{selected_file}")
             labels = load_labels(label_folder, selected_file, threshold)
-            
 
             html = reformat_text_html_with_tooltips(article_text, labels, hide_repeat)
             line_count = article_text.count("\n") + 1
@@ -320,6 +320,7 @@ if distribution_data:
             df_network = df_network[df_network['fine_roles'].notnull() & (df_network['fine_roles'] != '')]
             df_network['article'] = selected_file
             network_rows.append(df_network)
+
     
     if not network_rows:
         st.warning("No data to display. Select file(s) with annotated content.")
@@ -329,6 +330,8 @@ if distribution_data:
         st.header("Filtered Network Graph")
 
         graph_df = pd.concat(network_rows)
+
+        graph_df = normalize_entities(graph_df)
         graph_df['entity'] = graph_df['entity'].str.strip().str.title()
         graph_df['node_label'] = graph_df['entity'] + " (" + graph_df['fine_roles'] + ")"
 

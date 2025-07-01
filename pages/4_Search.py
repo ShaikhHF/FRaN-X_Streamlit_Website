@@ -26,7 +26,8 @@ for f in files:
     article = load_article(f'{folder_path}/{f}').strip()
     if word in article:
         labels = load_labels(
-            'split_data' if user_folder == None else 'user_articles',
+            #'split_data' if user_folder == None else 'user_articles',
+            'annotated',
             f,
             threshold
         )
