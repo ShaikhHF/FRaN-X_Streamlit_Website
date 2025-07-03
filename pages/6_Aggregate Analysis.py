@@ -15,6 +15,8 @@ from render_text import predict_entity_framing, normalize_entities
 st.set_page_config(page_title="FRaN-X", initial_sidebar_state='expanded', layout="wide")
 st.title("Aggregate Visualization")
 
+st.image('network_graph.png')
+
 article, labels, user_folder, threshold, role_filter, hide_repeat = render_sidebar(True, True, False, False)
 
 folder_path = 'chunk_data' if user_folder == None else 'user_articles'

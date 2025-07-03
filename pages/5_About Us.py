@@ -45,7 +45,7 @@ st.markdown("#### Pages")
 
 st.write("Better understand the capabilites and features of the website by using the example article dataset or upload your own articles through the **Upload Page**.")
 
-st.write("Use the **Home** and **Dynamic Compare Page** to look into 1 article or up to 4 articles at once respectively.")
+st.write("Use the **Home** and **Dynamic Analysis Page** to look into 1 article or up to 4 articles at once respectively.")
 
 st.write("See the annotations grouped by their respective entity over the course of an article and easily find when the role of an entity changes on the **Timeline Page**.")
 
